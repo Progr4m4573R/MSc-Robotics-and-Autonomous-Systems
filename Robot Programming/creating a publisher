@@ -1,0 +1,7 @@
+Creating a publisher
+
+rostopic pub /meminfo std_msgs/String "data: 'hello'" -r 1
+the above command creates a publisher called meminfo of type std_msgs/String, the data is 'hello' and it is posted every second.
+
+cat /proc/meminfo displays the memoy information every second
+rostopic echo /meminfo prints the info in the string from the publisher we created.
