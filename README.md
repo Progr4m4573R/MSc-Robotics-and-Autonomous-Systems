@@ -3,5 +3,6 @@
 
 Advanced Artificial Intelligence - Focuses on the theoretical fundamentals and practical applications of decision making, problem solving and interference ablilities in software agents. This module is python baised and available sources include google colab as well as jupiter notebook
 
+Robot Programming - Focuses on programming robots in ROS
 Launch thorvald with the keyop:
 -r tells ROS to do something at a given rate and not terminate.
