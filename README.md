@@ -18,6 +18,7 @@ append source /opt/ros/melodic/setup.bash to the bottom of .bashrc
 then run "source .bashrc" in terminal as below
 
 source .bashrc
+<---------------Fixes error with lab computer permisisons---------------->
 sudo chown -R computing:computing ~./ros
 <----------------launch the thorvald simulation------------------------>
 
