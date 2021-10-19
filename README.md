@@ -18,7 +18,7 @@ append source /opt/ros/melodic/setup.bash to the bottom of .bashrc
 then run "source .bashrc" in terminal as below
 
 source .bashrc
-
+sudo chown -R computing:computing ~./ros
 <----------------launch the thorvald simulation------------------------>
 
 roslaunch bacchus_gazebo vineyard_demo.launch world_name:=vineyard_small
