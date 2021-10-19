@@ -18,7 +18,8 @@ append source /opt/ros/melodic/setup.bash to the bottom of .bashrc
 then run "source .bashrc" in terminal as below
 
 source .bashrc
-
+<---------------Fixes error with lab computer permisisons---------------->
+sudo chown -R computing:computing ~./ros
 <----------------launch the thorvald simulation------------------------>
 
 roslaunch bacchus_gazebo vineyard_demo.launch world_name:=vineyard_small
@@ -30,3 +31,15 @@ find image example in Robot programming/useful images
 rostopic pub /thorvald_001/teleop_joy/cmd_vel geetry_msgs/Twist "linear:
 
 -r tells ROS to do something at a given rate and not terminate.
+<------------------Useful commands-------------------->
+
+using pipelinning we can access specific data about topics such as the thorvald frontscan
+rostopic echo /thorvald_001/front_scan
+rostopic echo /thorvald_001/front_scan | grep range_max
+rostopic echo /thorvald_001/front_scan | grep range_min
+rostopic echo /thorvald_001/front_scan | grep angle_max
+rostopic echo /thorvald_001/front_scan | grep angle_min
+<------Showing messages about a topics data such as LaserScan used by thorvald------->
+rosmsmg show sensor_msgs/LaserScan or rosmsg info sensor_msgs/LaserScan
+<----------showing information about certain topics--------->
+rostopic info/ thorvald_001_nav_vel
