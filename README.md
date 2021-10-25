@@ -55,4 +55,5 @@ rosmsmg show sensor_msgs/LaserScan or rosmsg info sensor_msgs/LaserScan
 
 <----------showing information about certain topics--------->
 rostopic info/ thorvald_001_nav_vel
-
+<---------------Creating a publisher------------>
+  rostopic pub /meminfo std_msgs/String "data:'Hey'"
