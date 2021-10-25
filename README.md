@@ -27,6 +27,7 @@ roslaunch bacchus_gazebo vineyard_demo.launch world_name:=vineyard_small
 You may kill all simulator instances with "killall -9 gzserver"
 
 <-------------------Launch thorvald with the keyop------------------>
+
 find image example in Robot programming/useful images
 rostopic pub /thorvald_001/teleop_joy/cmd_vel geetry_msgs/Twist "linear:
 
@@ -39,7 +40,10 @@ rostopic echo /thorvald_001/front_scan | grep range_max
 rostopic echo /thorvald_001/front_scan | grep range_min
 rostopic echo /thorvald_001/front_scan | grep angle_max
 rostopic echo /thorvald_001/front_scan | grep angle_min
+
 <------Showing messages about a topics data such as LaserScan used by thorvald------->
 rosmsmg show sensor_msgs/LaserScan or rosmsg info sensor_msgs/LaserScan
+
 <----------showing information about certain topics--------->
 rostopic info/ thorvald_001_nav_vel
+
