@@ -34,6 +34,15 @@ rostopic pub /thorvald_001/teleop_joy/cmd_vel geetry_msgs/Twist "linear:
 -r tells ROS to do something at a given rate and not terminate.
 <------------------Useful commands-------------------->
 
+type -h next to any commands for more information
+
+rostpic list -v "Lists active publishers and subscribers "
+rosservice list "List active services"
+rosmsg list/ show - shows a list of all predefined message types 
+rossrv - displays information about ros service types
+roscore -  starts a new roscore server if one is not active
+rosnode list - lists all active nodes
+rqt_image_view - shows a robot's perspective in ROS
 using pipelinning we can access specific data about topics such as the thorvald frontscan
 rostopic echo /thorvald_001/front_scan
 rostopic echo /thorvald_001/front_scan | grep range_max
