@@ -3,8 +3,8 @@ import rospy
 from std_msgs.msg import String
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan
-from math import radians
-from math import degrees
+
+
 class Mover:
     """
     A very simple Roamer implementation for Thorvald.
@@ -16,7 +16,7 @@ class Mover:
     def __init__(self):
         """
         On construction of the object, create a Subscriber
-        to listen to lasr scans and a Publisher to control
+        to listen to laser scans and a Publisher to control
         the robot
         """
         self.publisher = rospy.Publisher(
@@ -28,28 +28,26 @@ class Mover:
         """
         Callback called any time a new laser scan becomes available
         """
-
+        t = Twist()
         rospy.loginfo(
             rospy.get_caller_id() + "I heard %s", data.header.seq)
         min_dist = min(data.ranges)
+        
+        safe_distance = min(data.ranges)# gets the minimum of the ranges from laser sensor
+        
+        #if there is something in front turn clockwise to avoid
+        if safe_distance < 2:# in metres?
 
-
-        if data.ranges[320]  < 1:
-            #if there is nothing in front
-            t = Twist()
-            t.linear.x = 0
-            t.angular.z = radians(45);#rotate right at this speed
-            print("Turning left to avoid obstacle...")
-            self.publisher.publish(t)
+            t.angular.z = 1;#rotate left 
+            print("Turning left  to avoid obstacle...")
             
-        # #go forwards if there is nothing in front and priorities turning right
-        elif data.ranges[320] > 1:
-            t = Twist()
-            t.linear.x = 0.5
-            
-            self.publisher.publish(t) 
-            #self.image_callback
+        # #go forwards if there is nothing in front 
+        elif safe_distance > 1:
+            t.linear.x = 0.8
             print("Exploring....")
+
+        self.publisher.publish(t) 
+            
 
 if __name__ == '__main__':
     rospy.init_node('mover')
