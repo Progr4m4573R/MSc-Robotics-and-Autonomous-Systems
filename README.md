@@ -22,7 +22,7 @@ source .bashrc
 sudo chown -R computing:computing ~./ros
 <----------------launch the thorvald simulation------------------------>
 
-roslaunch bacchus_gazebo vineyard_demo.launch world_name:=vineyard_small
+roslaunch bacchus_gazebo vineyard_demo.launch world_name:=vineyard_small multi_sim:=true
 
 You may kill all simulator instances with "killall -9 gzserver"
 
