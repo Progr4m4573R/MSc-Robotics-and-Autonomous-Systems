@@ -4,9 +4,8 @@ import rospy
 import math
 import tf
 import geometry_msgs.msg
-from std_msgs.msg import String
 from math import atan2, pi
-from sensor_msgs.msg import LaserScan
+
 
 class MyTFListener:
     """
@@ -21,15 +20,14 @@ class MyTFListener:
         self.listener = tf.TransformListener()
         self.pose_pub = rospy.Publisher('test_pose', geometry_msgs.msg.PoseStamped, queue_size=1)
 
-        rospy.Subscriber("/thorvald_001/front_scan", LaserScan, self.run)
         self.rate = rospy.Rate(.5)
 
     def run(self):
         while not rospy.is_shutdown():
             try:
-                # look up the transform, i.e., get the transform from Thorvald_001/hokuyo_front to the world,
+                # look up the transform, i.e., get the transform from Thorvald_001/base_link to the world,
                 # This transform will allow us to transfer 
-                (trans, rot) = self.listener.lookupTransform('world', 'thorvald_001/hokuyo_front', rospy.Time())
+                (trans, rot) = self.listener.lookupTransform('world', 'thorvald_001/base_link', rospy.Time())
                 
             except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException) as e:
                 self.rate.sleep()
@@ -40,7 +38,7 @@ class MyTFListener:
             yaw_angle = atan2(rot[2], rot[3])*2
             print("the current transformation: ", trans, yaw_angle * 180 / pi)
             
-            # here is an example pose, with a given frame of reference, e.g. something detected in the camera
+            # here is an exmaple pose, with a given frame of reference, e.g. somethng detected in the camera
             p1 = geometry_msgs.msg.PoseStamped()
             # every pose is given in relation to a frame, indicated here as frame_id
             p1.header.frame_id = "thorvald_001/kinect2_left_rgb_optical_frame"
@@ -52,7 +50,7 @@ class MyTFListener:
             self.pose_pub.publish(p1)
 
             # here we directly transform the pose into another pose for the given frame of reference:
-            p_in_base = self.listener.transformPose("thorvald_001/hokuyo_front", p1)
+            p_in_base = self.listener.transformPose("thorvald_001/base_link", p1)
             print ("Position of the object in the new frame of reference:")
             print (p_in_base)
 

@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# bash script for automating the installation of ROS melodic for linux computers
 echo 'automating ros installation and updating'
 #update system
 sudo apt-get update && sudo apt-get upgrade
