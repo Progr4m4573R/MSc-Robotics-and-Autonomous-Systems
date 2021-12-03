@@ -4,4 +4,4 @@
 Advanced Artificial Intelligence - Focuses on the theoretical fundamentals and practical applications of decision making, problem solving and interference ablilities in software agents. This module is python baised and available sources include google colab as well as jupiter notebook
 
 Robot Programming - Focuses on programming robots in ROS
-instructions found on : (https://github.com/LCAS/CMP9767M/wiki/Workshop-1---Introduction-and-ROS-Basics)
+instructions found on : https://github.com/LCAS/CMP9767M/wiki
