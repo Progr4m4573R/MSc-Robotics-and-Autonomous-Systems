@@ -53,4 +53,5 @@ rostopic info/ thorvald_001_nav_vel
   rostopic pub /meminfo std_msgs/String "data:'Hey'"
 <If you get issues with rqt_launchtree this webpage can help>
   https://answers.ros.org/question/91231/rqt-plugin-not-listedfound-in-list-returned-by-rqt-list-plugins/
-
+Useful information:
+Navigating the ROS Filesystem:http://wiki.ros.org/ROS/Tutorials/NavigatingTheFilesystem
