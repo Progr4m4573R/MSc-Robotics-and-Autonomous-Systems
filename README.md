@@ -5,3 +5,5 @@ Advanced Artificial Intelligence - Focuses on the theoretical fundamentals and p
 
 Robot Programming - Focuses on programming robots in ROS
 instructions found on : https://github.com/LCAS/CMP9767M/wiki
+
+Foundations of robotics - Delves into the maths, physics and all other facets of robotics that all come together to make robitics possible. For this module i created a robot with a team of other masters students. The specifics of this will be elaborated in another repository
