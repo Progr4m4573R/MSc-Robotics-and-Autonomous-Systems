@@ -1,5 +1,5 @@
 
-<--------------------------Install dependencies----------------------->
+                           <--------------------------Install dependencies----------------------->
 
 sudo apt-get update && sudo apt-get upgrade
 sudo apt-get install ros-melodic-uol-cmp9767m-base ros-melodic-desktop
@@ -11,21 +11,21 @@ append source /opt/ros/melodic/setup.bash to the bottom of .bashrc
 then run "source .bashrc" in terminal as below
 
 source .bashrc
-<---------------Fixes error with lab computer permisisons---------------->
+                           <---------------Fixes error with lab computer permisisons---------------->
 sudo chown -R computing:computing ~./ros
-<----------------launch the thorvald simulation------------------------>
+                            <----------------launch the thorvald simulation------------------------>
 
 roslaunch bacchus_gazebo vineyard_demo.launch world_name:=vineyard_small multi_sim:=true
 
 You may kill all simulator instances with "killall -9 gzserver"
 
-<-------------------Launch thorvald with the keyop------------------>
+                              <-------------------Launch thorvald with the keyop------------------>
 
 find image example in Robot programming/useful images
 rostopic pub /thorvald_001/teleop_joy/cmd_vel geetry_msgs/Twist "linear:
 
 -r tells ROS to do something at a given rate and not terminate.
-<------------------Useful commands-------------------->
+                                    <------------------Useful commands-------------------->
 
 type -h next to any commands for more information
 
@@ -44,12 +44,12 @@ rostopic echo /thorvald_001/front_scan | grep range_min
 rostopic echo /thorvald_001/front_scan | grep angle_max
 rostopic echo /thorvald_001/front_scan | grep angle_min
 
-<------Showing messages about a topics data such as LaserScan used by thorvald------->
+                          <------Showing messages about a topics data such as LaserScan used by thorvald------->
 rosmsmg show sensor_msgs/LaserScan or rosmsg info sensor_msgs/LaserScan
 
-<----------showing information about certain topics--------->
+                                   <----------showing information about certain topics--------->
 rostopic info/ thorvald_001_nav_vel
-<---------------Creating a publisher------------>
+                                     <---------------Creating a publisher------------>
   rostopic pub /meminfo std_msgs/String "data:'Hey'"
 <If you get issues with rqt_launchtree this webpage can help>
   https://answers.ros.org/question/91231/rqt-plugin-not-listedfound-in-list-returned-by-rqt-list-plugins/
