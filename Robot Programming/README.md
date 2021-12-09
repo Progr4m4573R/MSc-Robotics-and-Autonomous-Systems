@@ -35,6 +35,7 @@ rosmsg list/ show - shows a list of all predefined message types
 rossrv - displays information about ros service types
 roscore -  starts a new roscore server if one is not active
 rosnode list - lists all active nodes
+
 rqt_image_view - shows a robot's perspective in ROS
 rosrun rqt_tf_tree rqt_tf_tree - used to display the tf tree of the thorvald robot
 using pipelinning we can access specific data about topics such as the thorvald frontscan
