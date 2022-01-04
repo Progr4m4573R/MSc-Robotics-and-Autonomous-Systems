@@ -2,6 +2,8 @@
                            <--------------------------Install dependencies----------------------->
 
 sudo apt-get update && sudo apt-get upgrade
+
+
 sudo apt-get install ros-melodic-uol-cmp9767m-base ros-melodic-desktop
 
 use gedit to open .bashrc
