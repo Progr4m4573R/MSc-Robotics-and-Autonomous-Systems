@@ -15,7 +15,7 @@ then run "source ~/.bashrc" in terminal as below
 
 source .bashrc
                            <---------------Fixes error with lab computer permisisons---------------->
-sudo chown -R computing:computing ~./ros
+sudo chown -R computing:computing ~/.ros
                             <----------------launch the thorvald simulation------------------------>
 
 roslaunch bacchus_gazebo vineyard_demo.launch world_name:=vineyard_small multi_sim:=true
