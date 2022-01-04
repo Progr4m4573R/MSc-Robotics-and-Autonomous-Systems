@@ -66,4 +66,4 @@ rostopic info/ thorvald_001_nav_vel
 Useful information:
 Navigating the ROS Filesystem:http://wiki.ros.org/ROS/Tutorials/NavigatingTheFilesystem
 
-If ROSBASH commands (roscd, rospkg e.t.c) aren't working in your catkin workspace consider sourcing the setup.bash in devel once again.
+If ROSBASH commands (roscd, rospkg e.t.c) aren't working in your catkin workspace consider sourcing the setup.bash in devel once again. My reference: https://wiki.ros.org/catkin/Tutorials/CreatingPackage
