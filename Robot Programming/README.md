@@ -69,4 +69,5 @@ Navigating the ROS Filesystem:http://wiki.ros.org/ROS/Tutorials/NavigatingTheFil
 If ROSBASH commands (roscd, rospkg e.t.c) aren't working in your catkin workspace consider sourcing the setup.bash in devel once again:
   
 . ~/catkin_ws/devel/setup.bash  
+  
 My reference: https://wiki.ros.org/catkin/Tutorials/CreatingPackage
