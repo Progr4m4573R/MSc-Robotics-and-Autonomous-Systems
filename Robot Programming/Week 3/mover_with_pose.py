@@ -10,7 +10,7 @@ from tf import TransformListener
 
 class Mover:
     """
-    A very simple Roamer implementation for Thorvald.
+    A very simple Roamer implementation for 2 Thorvald Robots.
     It simply goes straight until any obstacle is within
     3 m distance and then just simply turns left.
     A purely reactive approach.
