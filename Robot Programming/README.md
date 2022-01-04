@@ -2,20 +2,29 @@
                            <--------------------------Install dependencies----------------------->
 
 sudo apt-get update && sudo apt-get upgrade
+
+
 sudo apt-get install ros-melodic-uol-cmp9767m-base ros-melodic-desktop
 
-use gedit to open .bashrc
-gedit .bashrc
+use gedit to open .bashrc:
+
+gedit ~/.bashrc
 
 append source /opt/ros/melodic/setup.bash to the bottom of .bashrc
-then run "source .bashrc" in terminal as below
+then run "source ~/.bashrc" in terminal as below
 
 source .bashrc
                            <---------------Fixes error with lab computer permisisons---------------->
-sudo chown -R computing:computing ~./ros
+sudo chown -R computing:computing ~/.ros
                             <----------------launch the thorvald simulation------------------------>
 
+Launch with 2 robots:
+
 roslaunch bacchus_gazebo vineyard_demo.launch world_name:=vineyard_small multi_sim:=true
+
+Launch in a small vineyard:
+
+roslaunch bacchus_gazebo vineyard_demo.launch world_name:=vineyard_small
 
 You may kill all simulator instances with "killall -9 gzserver"
 
