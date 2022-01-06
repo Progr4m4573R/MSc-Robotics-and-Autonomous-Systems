@@ -1,0 +1,2 @@
+import os
+main = os.getcwd()
