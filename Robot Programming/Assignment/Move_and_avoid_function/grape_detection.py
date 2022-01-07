@@ -2,59 +2,51 @@
 #!/usr/bin/env python2
 #!/usr/bin/env python
 #Object detection for grape
-#mport numpy
-import cv2
-from cv_bridge import CvBridge
 import rospy
+from cv2 import namedWindow, cvtColor, imshow, inRange
+from cv2 import destroyAllWindows, startWindowThread
+from cv2 import COLOR_BGR2GRAY, waitKey, COLOR_BGR2HSV
+from cv2 import blur, Canny, resize, INTER_CUBIC
+from numpy import mean, array
 from sensor_msgs.msg import Image
-import mover
+from cv_bridge import CvBridge
 
-class Camera:
-    
-    def process_image(camera_feed): 
-        try:
-            bridge = CvBridge
-        except Exception as err:
-            print (err)
-
-
-
-
-
-
-   
-
-
+class robot_image_processor:
 
     def __init__(self):
-
-        #Create a camera subscriber for input
-        self.s = rospy.Subscriber('/thorvald_001/kinetic2_front_camera/hd/image_color_rect',Image, self.process_image)
-    
-        #Create a camera publisher for Image processing
+        
         self.bridge = CvBridge()
-        rospy.init_node('grape_detection')
-        rospy.loginfo('grape detection node active')
+        self.image_sub = rospy.Subscriber("/thorvald_001/kinect2_front_camera/hd/image_color_rect",Image, self.process_image)
 
+    def process_image(self, camera_feed): 
+        try:#enable code to continue if there is an error during processing pipeline
+        
+            namedWindow("Image window")
+            namedWindow("masked")
+            namedWindow("canny")
+            cv_image = self.bridge.imgmsg_to_cv2(camera_feed, "bgr8")
+            cv_image = resize(cv_image, None, fx=0.2, fy=0.2, interpolation = INTER_CUBIC)
 
+            mask = inRange(cv_image, (0, 150, 150), (255, 255, 255))
+            imshow("masked", mask)
+            gray_img = cvtColor(cv_image, COLOR_BGR2GRAY)
+            img3 = Canny(gray_img, 10, 200)
+            imshow("canny", img3)
 
+            imshow("Image window", cv_image)
+            waitKey(1)
 
+        except Exception as err:
+            print (err)
+        #if processing fails, show robot view 
 
-
-
-
-
-
-
-
-
-
-
+        
 if __name__ == '__main__':
     #Prevent code from breaking with exception
     try:
-        rospy.init_node('Camera')
-        Camera()
+        #startwindow thread
+        rospy.init_node('robot_image_processor')
+        ric = robot_image_processor()
         rospy.spin()
     except rospy.ROSInterruptException:
-        pass
+        print("Code error detected")

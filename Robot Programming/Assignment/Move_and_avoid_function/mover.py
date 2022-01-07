@@ -5,8 +5,7 @@ import rospy
 from std_msgs.msg import String
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan
-
-
+#import grape_detection
 class Mover:
     """
     A very simple Roamer implementation for Thorvald.
@@ -25,6 +24,9 @@ class Mover:
             '/thorvald_001/teleop_joy/cmd_vel',
             Twist, queue_size=1)
         rospy.Subscriber("/thorvald_001/front_scan", LaserScan, self.callback)
+        
+        #Calls image processing node
+        #grape_detection.Camera()
 
     def callback(self, data):
         """
@@ -32,7 +34,7 @@ class Mover:
         """
         t = Twist()
         rospy.loginfo(
-            rospy.get_caller_id() + "I heard %s", data.header.seq)
+            rospy.get_caller_id() + " I heard %s", data.header.seq)
         min_dist = min(data.ranges)
         
         safe_distance = min(data.ranges)# gets the minimum of the ranges from laser sensor
@@ -48,8 +50,7 @@ class Mover:
             t.linear.x = 0
             print("Exploring....")
 
-        self.publisher.publish(t) 
-        #Test callin grape detection function
+
 
 
 if __name__ == '__main__':
