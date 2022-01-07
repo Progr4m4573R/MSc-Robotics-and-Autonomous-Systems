@@ -23,24 +23,25 @@ class robot_image_processor:
         
             namedWindow("Image window")
             namedWindow("masked")
-            namedWindow("canny")
+            #namedWindow("canny")
             original_image = self.bridge.imgmsg_to_cv2(camera_feed, "bgr8")
             original_image = resize(original_image, None, fx=0.2, fy=0.2, interpolation = INTER_CUBIC)
             #experimenting---------------------------------------------------
             hsv = cvtColor(original_image, COLOR_BGR2HSV)#converts that the robot sees to hsv
             
-            lower_green = array([0, 150, 150])# detect blue
+            lower_green = array([0, 150, 150])# detect green for leaves
             upper_green = array([255, 255, 255])#this too
-            
+            lower_purple = array([75,5,10])# detectes purple for grapes
+            upper_purple = array([255,255,255])#this too
             hsv_green_threshold = inRange(hsv, lower_green, upper_green)
-
+            hsv_purple_threshold = inRange(hsv,lower_purple, upper_purple)
             green_mask = hsv_green_threshold
             #experimenting----------------------------------------------------
-            mask = inRange(original_image, lower_green, upper_green)
+            mask = inRange(hsv, lower_purple, upper_purple)
             imshow("masked", mask)
             gray_img = cvtColor(hsv, COLOR_BGR2GRAY)
-            img3 = Canny(gray_img, 10, 200)
-            imshow("canny", img3)
+            #img3 = Canny(gray_img, 10, 200)
+            #imshow("canny", img3)
 
             imshow("Image window", hsv)
             waitKey(1)
