@@ -5,7 +5,9 @@ import rospy
 from std_msgs.msg import String
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan
-#import grape_detection
+
+import grape_detection as gp
+
 class Mover:
     """
     A very simple Roamer implementation for Thorvald.
@@ -23,12 +25,12 @@ class Mover:
         self.publisher = rospy.Publisher(
             '/thorvald_001/teleop_joy/cmd_vel',
             Twist, queue_size=1)
-        rospy.Subscriber("/thorvald_001/front_scan", LaserScan, self.callback)
+        rospy.Subscriber("/thorvald_001/front_scan", LaserScan, self.laser_callback)
         
         #Calls image processing node
-        #grape_detection.Camera()
+        gp.robot_image_processor()
 
-    def callback(self, data):
+    def laser_callback(self, data):
         """
         Callback called any time a new laser scan becomes available
         """
@@ -49,9 +51,7 @@ class Mover:
         elif safe_distance > 1:
             t.linear.x = 0
             print("Exploring....")
-
-
-
+    
 
 if __name__ == '__main__':
     rospy.init_node('mover')
