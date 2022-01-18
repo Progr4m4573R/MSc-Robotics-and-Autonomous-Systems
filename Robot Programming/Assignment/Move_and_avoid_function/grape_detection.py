@@ -7,6 +7,7 @@ from cv2 import namedWindow, cvtColor, imshow, inRange
 from cv2 import destroyAllWindows, startWindowThread
 from cv2 import COLOR_BGR2GRAY, waitKey, COLOR_BGR2HSV
 from cv2 import blur, Canny, resize, INTER_CUBIC
+import cv2
 from numpy import mean, array
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
@@ -40,13 +41,16 @@ class robot_image_processor:
             mask = inRange(hsv, lower_purple, upper_purple)
             imshow("masked", mask)
             gray_img = cvtColor(hsv, COLOR_BGR2GRAY)
-            #img3 = Canny(gray_img, 10, 200)
-            #imshow("canny", img3)
+            img3 = Canny(gray_img, 255, 255)#10, 200
+            imshow("canny", img3)
 
             imshow("Image window", hsv)
             waitKey(1)
 
-
+            #Find Circle contours in image 
+            #ret, thresh = cv2.threshold(img3, 127, 255, 0)
+            #contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+            #cv2.drawContours(img3, contours, 2, (0,255,0), 3)
 
 
         except Exception as err:
@@ -63,3 +67,5 @@ if __name__ == '__main__':
         rospy.spin()
     except rospy.ROSInterruptException:
         print("Code error detected")
+
+        #https://docs.opencv.org/4.x/d4/d73/tutorial_py_contours_begin.html
