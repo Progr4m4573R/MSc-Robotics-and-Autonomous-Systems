@@ -71,3 +71,6 @@ If ROSBASH commands (roscd, rospkg e.t.c) aren't working in your catkin workspac
 . ~/catkin_ws/devel/setup.bash  
   
 My reference: https://wiki.ros.org/catkin/Tutorials/CreatingPackage
+
+  https://docs.opencv.org/3.4/d9/d61/tutorial_py_morphological_ops.html
+  https://wiki.ros.org/rviz/DisplayTypes/Marker
