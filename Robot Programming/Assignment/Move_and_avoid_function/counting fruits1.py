@@ -19,7 +19,7 @@ class count_fruits:
 
         # if kernel is too big then the blobs wont be detected
 
-        self.kernelOpen=np.ones((15,15))# uses two techniques called dialation and erosion to open and image an filter out noise to increase the accuracy of the mask
+        self.kernelOpen=np.ones((20,20))# uses two techniques called dialation and erosion to open and image an filter out noise to increase the accuracy of the mask
         self.kernelClose=np.ones((20,20))
 
         img = self.bridge.imgmsg_to_cv2(camera, "bgr8")
@@ -27,7 +27,7 @@ class count_fruits:
         #img=cv2.resize(img,(340,220))
 
         lowerBound=np.array([100,30,20])
-        upperBound=np.array([255,256,256])
+        upperBound=np.array([255,255,255])
         font = cv2.FONT_HERSHEY_SIMPLEX
 
         #convert BGR to HSV
@@ -51,7 +51,7 @@ class count_fruits:
             x,y,w,h=cv2.boundingRect(conts[i])
             cv2.rectangle(img,(x,y),(x+w,y+h),(0,0,255), 2)# we draw a box around each contour 
             cv2.putText(img, str(i+1),(x,y+h),cv2.FONT_HERSHEY_SIMPLEX,0.7,(0,255,0))#count the number of contours there are
-            
+        print(len(conts), " bunches of grapes have been detected")
         cv2.imshow("maskClose", self.maskClose)
         cv2.imshow("maskOpen",self.maskOpen)
         cv2.imshow("mask",mask)
