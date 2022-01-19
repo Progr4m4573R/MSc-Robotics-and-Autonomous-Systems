@@ -18,7 +18,7 @@ class count_fruits:
     def process_image(self, camera):
 
         # if kernel is too big then the blobs wont be detected
-        #cam= cv2.VideoCapture(0)
+
         self.kernelOpen=np.ones((15,15))# uses two techniques called dialation and erosion to open and image an filter out noise to increase the accuracy of the mask
         self.kernelClose=np.ones((20,20))
 
@@ -35,20 +35,22 @@ class count_fruits:
         cv2.imshow('HSV',imgHSV)
         # create the Mask
         mask=cv2.inRange(imgHSV,lowerBound,upperBound)
+        
         #morphology
         self.maskClose=cv2.morphologyEx(mask,cv2.MORPH_CLOSE,self.kernelOpen)
 
         self.maskOpen=cv2.morphologyEx(self.maskClose,cv2.MORPH_OPEN,self.kernelClose)
         #self.maskClose=cv2.morphologyEx(mask,cv2.MORPH_CLOSE,self.kernelClose)
 
+        #conts stores the number of contours that are detected in the image
         maskFinal=self.maskOpen
-        _,conts,h=cv2.findContours(maskFinal.copy(),cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_NONE)
+        _,conts,h=cv2.findContours(maskFinal.copy(),cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
         
         cv2.drawContours(img,conts,-1,(255,0,0),1)
         for i in range(len(conts)):
             x,y,w,h=cv2.boundingRect(conts[i])
-            cv2.rectangle(img,(x,y),(x+w,y+h),(0,0,255), 2)
-            cv2.putText(img, str(i+1),(x,y+h),cv2.FONT_HERSHEY_SIMPLEX,0.7,(0,255,0))
+            cv2.rectangle(img,(x,y),(x+w,y+h),(0,0,255), 2)# we draw a box around each contour 
+            cv2.putText(img, str(i+1),(x,y+h),cv2.FONT_HERSHEY_SIMPLEX,0.7,(0,255,0))#count the number of contours there are
             
         cv2.imshow("maskClose", self.maskClose)
         cv2.imshow("maskOpen",self.maskOpen)
