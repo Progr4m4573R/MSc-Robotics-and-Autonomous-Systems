@@ -8,25 +8,28 @@ from cv2 import namedWindow, cvtColor, imshow, inRange
 from cv2 import destroyAllWindows, startWindowThread
 from cv2 import COLOR_BGR2GRAY, waitKey, COLOR_BGR2HSV
 from cv2 import blur, Canny, resize, INTER_CUBIC
+from geometry_msgs.msg import Twist
 
-class count_fruits:
+class grape_counter:
 
     def __init__(self): 
         self.bridge = CvBridge()
         self.image_sub = rospy.Subscriber("/thorvald_001/kinect2_front_camera/hd/image_color_rect",Image, self.process_image)
-
+        self.cmd_vel_pub = rospy.Publisher('/mobile_base/commands/velocity', Twist,
+                                           queue_size=1)
+        self.twist = Twist()
     def process_image(self, camera):
 
         # if kernel is too big then the blobs wont be detected
 
-        self.kernelOpen=np.ones((20,20))# uses two techniques called dialation and erosion to open and image an filter out noise to increase the accuracy of the mask
-        self.kernelClose=np.ones((20,20))
+        self.kernelOpen=np.ones((10,10))# uses two techniques called dialation and erosion to open and image an filter out noise to increase the accuracy of the mask
+        self.kernelClose=np.ones((25,25))
 
         img = self.bridge.imgmsg_to_cv2(camera, "bgr8")
         img = resize(img, None, fx=0.6, fy=0.6, interpolation = INTER_CUBIC)
         #img=cv2.resize(img,(340,220))
 
-        lowerBound=np.array([100,30,20])
+        lowerBound=np.array([100,30,55])
         upperBound=np.array([255,255,255])
         font = cv2.FONT_HERSHEY_SIMPLEX
 
@@ -37,9 +40,9 @@ class count_fruits:
         mask=cv2.inRange(imgHSV,lowerBound,upperBound)
         
         #morphology
-        self.maskClose=cv2.morphologyEx(mask,cv2.MORPH_CLOSE,self.kernelOpen)
+        self.maskClose=cv2.morphologyEx(mask,cv2.MORPH_CLOSE,self.kernelClose)
 
-        self.maskOpen=cv2.morphologyEx(self.maskClose,cv2.MORPH_OPEN,self.kernelClose)
+        self.maskOpen=cv2.morphologyEx(self.maskClose,cv2.MORPH_OPEN,self.kernelOpen)
         #self.maskClose=cv2.morphologyEx(mask,cv2.MORPH_CLOSE,self.kernelClose)
 
         #conts stores the number of contours that are detected in the image
@@ -61,6 +64,6 @@ class count_fruits:
                     cv2.destroyAllWindows()
                 
 if __name__ =='__main__':
-    rospy.init_node('count_fruits')
-    cf = count_fruits()
+    rospy.init_node('grape_counter')
+    cf = grape_counter()
     rospy.spin()
