@@ -30,7 +30,7 @@ You may kill all simulator instances with "killall -9 gzserver"
 
                               <-------------------Launch thorvald with the keyop------------------>
 
-find image example in Robot programming/useful images
+                                    find image example in Robot programming/useful images
 rostopic pub /thorvald_001/teleop_joy/cmd_vel geetry_msgs/Twist "linear:
 
 -r tells ROS to do something at a given rate and not terminate.
