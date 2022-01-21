@@ -15,7 +15,7 @@ def goal_callback(data):
     global cur_location, destination
     if data:
         destination = data#the point we are telling the robot to go to.
-        cur_pose = rospy.wait_for_message("thorvald_001/odom", Odometry)#current pose of the robots odomertry
+        cur_pose = rospy.wait_for_message("/thorvald_001/base_link", Odometry)#current pose of the robots odomertry
         cur_location = cur_pose.pose.pose.position# gets current position of the robot from odometry
         
 
@@ -32,11 +32,11 @@ pictograms = ["fa-building","location"]
 while not rospy.is_shutdown():
     
     arr = PictogramArray()
-    arr.header.frame_id = "map"
+    arr.header.frame_id = "thorvald_001/base_link"#this would be odom but the odom seems to be at a different location than the robot itself.
     arr.header.stamp = rospy.Time.now()
     for index, character in enumerate(pictograms):
         msg = Pictogram()
-        msg.header.frame_id = "map"
+        msg.header.frame_id = "thorvald_001/base_link"
         msg.action = Pictogram.JUMP
         if index == 0:
             msg.header.stamp = rospy.Time.now()
