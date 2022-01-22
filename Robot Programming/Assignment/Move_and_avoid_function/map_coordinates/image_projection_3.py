@@ -60,14 +60,14 @@ class image_projection:
 
         self.tf_listener = tf.TransformListener()
     #Master methods that will be called by each camera callback
-    def camera_info_callback_master(self,data):
+    def camera_info_callback_master(self,data,):
         self.camera_model = image_geometry.PinholeCameraModel()
         self.camera_model.fromCameraInfo(data)  
 
     def image_depth_callback_master(self,data):
         self.image_depth_ros = data
 
-    def image_color_callback_master(self,data,frame_id):
+    def image_color_callback_master(self,data,frame_id,active_camera):
                 # wait for camera_model and depth image to arrive
         if self.camera_model is None:
             return
@@ -91,7 +91,7 @@ class image_projection:
             print ('No grapes detected.')
             return
         else:
-            print("grapes detected")
+            print("grapes detected in", active_camera)
         # calculate the y,x centroid
         image_coords = (M["m01"] / M["m00"], M["m10"] / M["m00"])
         # "map" from color to depth image
@@ -129,7 +129,6 @@ class image_projection:
         print ('map coords: ', p_camera.pose.position)
         print ('')
 
-
         if self.visualisation:
             # draw circles
             cv2.circle(image_color, (int(image_coords[1]), int(image_coords[0])), 10, 255, -1)
@@ -145,31 +144,31 @@ class image_projection:
     #Created multiple methods for each camera i will be using and renamed the main methods that will be called multiple times 
     
     #Front camera callback methods
-    def front_camera_info_callback(self, data):
-        self.camera_info_callback_master(self,data)
+    def front_camera_info_callback(self,data):
+        self.camera_info_callback_master(data)
         self.front_camera_info_sub.unregister() #Only subscribe once
     def front_image_color_callback(self, data):
-        self.image_color_callback_master(self,data,"thorvald_001/kinect2_front_rgb_optical_frame")
-    def front_image_depth_callback(self, data):
-        self.image_depth_callback_master
+        self.image_color_callback_master(data,"thorvald_001/kinect2_front_rgb_optical_frame","Front Camera")
+    def front_image_depth_callback(self,data):
+        self.image_depth_callback_master(data)
 
     #Right camera callback methods
-    def right_camera_info_callback(self, data):
-        self.camera_info_callback_master(self,data)          
+    def right_camera_info_callback(self,data):
+        self.camera_info_callback_master(data)          
         self.right_camera_info_sub.unregister() #Only subscribe once
     def right_image_color_callback(self, data):
-        self.image_color_callback_master(self,data,"thorvald_001/kinect2_right_rgb_optical_frame")
+        self.image_color_callback_master(data,"thorvald_001/kinect2_right_rgb_optical_frame","Right Camera")
     def right_image_depth_callback(self, data):
-        self.image_depth_callback_master
+        self.image_depth_callback_master(data)
 
     #Left camera callback methods
     def left_camera_info_callback(self, data):
-        self.camera_info_callback_master(self,data)
+        self.camera_info_callback_master(data)
         self.left_camera_info_sub.unregister() #Only subscribe once
     def left_image_color_callback(self, data):
-        self.image_color_callback_master(self,data,"thorvald_001/kinect2_left_rgb_optical_frame")
+        self.image_color_callback_master(data,"thorvald_001/kinect2_left_rgb_optical_frame","Left Camera" )
     def left_image_depth_callback(self, data):
-        self.image_depth_callback_master
+        self.image_depth_callback_master(data)
 
 def main(args):
     '''Initializes and cleanup ros node'''
