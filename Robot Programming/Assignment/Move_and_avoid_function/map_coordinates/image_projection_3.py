@@ -24,33 +24,51 @@ class image_projection:
     # (84.1/1920) / (70.0/512)
     color2depth_aspect = (84.1/1920) / (70.0/512)
 
-    def __init__(self):    
-
+    def __init__(self):
+        #front camera------------------------------------------------------------
         self.bridge = CvBridge()
-
-        self.camera_info_sub = rospy.Subscriber('/thorvald_001/kinect2_front_camera/hd/camera_info', 
-            CameraInfo, self.camera_info_callback)
-
         self.object_location_pub = rospy.Publisher('/thorvald_001/object_location', PoseStamped, queue_size=10)
 
+        self.front_camera_info_sub = rospy.Subscriber('/thorvald_001/kinect2_front_camera/hd/camera_info',
+            CameraInfo, self.front_camera_info_callback)
+
         rospy.Subscriber("/thorvald_001/kinect2_front_camera/hd/image_color_rect",
-            Image, self.image_color_callback)
+            Image, self.front_image_color_callback)
 
         rospy.Subscriber("/thorvald_001/kinect2_front_sensor/sd/image_depth_rect",
-            Image, self.image_depth_callback)
+            Image, self.front_image_depth_callback)
+
+        #Right camera---------------------------------------------------------
+        self.right_camera_info_sub = rospy.Subscriber('/thorvald_001/kinect2_right_camera/hd/camera_info',
+            CameraInfo, self.right_camera_info_callback)
+
+        rospy.Subscriber("/thorvald_001/kinect2_right_camera/hd/image_color_rect",
+            Image, self.right_image_color_callback)
+
+        rospy.Subscriber("/thorvald_001/kinect2_right_sensor/sd/image_depth_rect",
+            Image, self.right_image_depth_callback)
+
+        #Left camera--------------------------------------------------------------
+        self.left_camera_info_sub = rospy.Subscriber('/thorvald_001/kinect2_left_camera/hd/camera_info',
+            CameraInfo, self.left_camera_info_callback)
+
+        rospy.Subscriber("/thorvald_001/kinect2_left_camera/hd/image_color_rect",
+            Image, self.left_image_color_callback)
+
+        rospy.Subscriber("/thorvald_001/kinect2_left_sensor/sd/image_depth_rect",
+            Image, self.left_image_depth_callback)
 
         self.tf_listener = tf.TransformListener()
-
-    def camera_info_callback(self, data):
+    #Master methods that will be called by each camera callback
+    def camera_info_callback_master(self,data):
         self.camera_model = image_geometry.PinholeCameraModel()
-        self.camera_model.fromCameraInfo(data)
-        self.camera_info_sub.unregister() #Only subscribe once
+        self.camera_model.fromCameraInfo(data)  
 
-    def image_depth_callback(self, data):
+    def image_depth_callback_master(self,data):
         self.image_depth_ros = data
 
-    def image_color_callback(self, data):
-        # wait for camera_model and depth image to arrive
+    def image_color_callback_master(self,data):
+                # wait for camera_model and depth image to arrive
         if self.camera_model is None:
             return
 
@@ -66,19 +84,20 @@ class image_projection:
 
 
         # detect a red blob in the color image
-        image_mask = cv2.inRange(image_color, (0, 0, 80), (20, 20, 255))
-        #image_mask = cv2.inRange(image_color, (100,30,55), (255,255,255))
+        #image_mask = cv2.inRange(image_color, (0, 0, 80), (20, 20, 255))
+        image_mask = cv2.inRange(image_color, (100,30,55), (255,255,255))
         # calculate moments of the binary image
         M = cv2.moments(image_mask)
 
         if M["m00"] == 0:
-            print ('No object detected.')
+            print ('No grapes detected.')
             return
-
+        else:
+            print("grapes detected")
         # calculate the y,x centroid
         image_coords = (M["m01"] / M["m00"], M["m10"] / M["m00"])
         # "map" from color to depth image
-        depth_coords = (image_depth.shape[0]/2 + (image_coords[0] - image_color.shape[0]/2)*self.color2depth_aspect, 
+        depth_coords = (image_depth.shape[0]/2 + (image_coords[0] - image_color.shape[0]/2)*self.color2depth_aspect,
             image_depth.shape[1]/2 + (image_coords[1] - image_color.shape[1]/2)*self.color2depth_aspect)
         # get the depth reading at the centroid location
         depth_value = image_depth[int(depth_coords[0]), int(depth_coords[1])] # you might need to do some boundary checking first!
@@ -89,7 +108,7 @@ class image_projection:
 
 
         # calculate object's 3d location in camera coords
-        camera_coords = self.camera_model.projectPixelTo3dRay((image_coords[1], image_coords[0])) #project the image coords (x,y) into 3D ray in camera coords 
+        camera_coords = self.camera_model.projectPixelTo3dRay((image_coords[1], image_coords[0])) #project the image coords (x,y) into 3D ray in camera coords
         camera_coords = [x/camera_coords[2] for x in camera_coords] # adjust the resulting vector so that z = 1
         camera_coords = [x*depth_value for x in camera_coords] # multiply the vector by depth
 
@@ -105,7 +124,7 @@ class image_projection:
 
         # publish so we can see that in rviz
         self.object_location_pub.publish(object_location)
-        
+
 
         # print out the coordinates in the map frame
         p_camera = self.tf_listener.transformPose('map', object_location)
@@ -126,6 +145,34 @@ class image_projection:
             cv2.imshow("image depth", image_depth)
             cv2.imshow("image color", image_color)
             cv2.waitKey(1)
+    #Created multiple methods for each camera i will be using and renamed the main methods that will be called multiple times 
+    
+    #Front camera callback methods
+    def front_camera_info_callback(self, data):
+        self.camera_info_callback_master(self,data)
+        self.front_camera_info_sub.unregister() #Only subscribe once
+    def front_image_color_callback(self, data):
+        self.image_color_callback_master(self,data)
+    def front_image_depth_callback(self, data):
+        self.image_depth_callback_master
+
+    #Right camera callback methods
+    def right_camera_info_callback(self, data):
+        self.camera_info_callback_master(self,data)          
+        self.right_camera_info_sub.unregister() #Only subscribe once
+    def right_image_color_callback(self, data):
+        self.image_color_callback_master(self,data)
+    def right_image_depth_callback(self, data):
+        self.image_depth_callback_master
+
+    #Left camera callback methods
+    def left_camera_info_callback(self, data):
+        self.camera_info_callback_master(self,data)
+        self.left_camera_info_sub.unregister() #Only subscribe once
+    def left_image_color_callback(self, data):
+        self.image_color_callback_master(self,data)
+    def left_image_depth_callback(self, data):
+        self.image_depth_callback_master
 
 def main(args):
     '''Initializes and cleanup ros node'''
