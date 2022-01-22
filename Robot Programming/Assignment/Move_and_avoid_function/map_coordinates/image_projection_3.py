@@ -67,7 +67,7 @@ class image_projection:
     def image_depth_callback_master(self,data):
         self.image_depth_ros = data
 
-    def image_color_callback_master(self,data):
+    def image_color_callback_master(self,data,frame_id):
                 # wait for camera_model and depth image to arrive
         if self.camera_model is None:
             return
@@ -82,9 +82,7 @@ class image_projection:
         except CvBridgeError as e:
             print (e)
 
-
-        # detect a red blob in the color image
-        #image_mask = cv2.inRange(image_color, (0, 0, 80), (20, 20, 255))
+        # detect a grape in the color image
         image_mask = cv2.inRange(image_color, (100,30,55), (255,255,255))
         # calculate moments of the binary image
         M = cv2.moments(image_mask)
@@ -106,7 +104,6 @@ class image_projection:
         print ('depth coords: ', depth_coords)
         print ('depth value: ', depth_value)
 
-
         # calculate object's 3d location in camera coords
         camera_coords = self.camera_model.projectPixelTo3dRay((image_coords[1], image_coords[0])) #project the image coords (x,y) into 3D ray in camera coords
         camera_coords = [x/camera_coords[2] for x in camera_coords] # adjust the resulting vector so that z = 1
@@ -116,7 +113,7 @@ class image_projection:
 
         #define a point in camera coordinates
         object_location = PoseStamped()
-        object_location.header.frame_id = "thorvald_001/kinect2_front_rgb_optical_frame"
+        object_location.header.frame_id = frame_id
         object_location.pose.orientation.w = 1.0
         object_location.pose.position.x = camera_coords[0]
         object_location.pose.position.y = camera_coords[1]
@@ -152,7 +149,7 @@ class image_projection:
         self.camera_info_callback_master(self,data)
         self.front_camera_info_sub.unregister() #Only subscribe once
     def front_image_color_callback(self, data):
-        self.image_color_callback_master(self,data)
+        self.image_color_callback_master(self,data,"thorvald_001/kinect2_front_rgb_optical_frame")
     def front_image_depth_callback(self, data):
         self.image_depth_callback_master
 
@@ -161,7 +158,7 @@ class image_projection:
         self.camera_info_callback_master(self,data)          
         self.right_camera_info_sub.unregister() #Only subscribe once
     def right_image_color_callback(self, data):
-        self.image_color_callback_master(self,data)
+        self.image_color_callback_master(self,data,"thorvald_001/kinect2_right_rgb_optical_frame")
     def right_image_depth_callback(self, data):
         self.image_depth_callback_master
 
@@ -170,7 +167,7 @@ class image_projection:
         self.camera_info_callback_master(self,data)
         self.left_camera_info_sub.unregister() #Only subscribe once
     def left_image_color_callback(self, data):
-        self.image_color_callback_master(self,data)
+        self.image_color_callback_master(self,data,"thorvald_001/kinect2_left_rgb_optical_frame")
     def left_image_depth_callback(self, data):
         self.image_depth_callback_master
 
