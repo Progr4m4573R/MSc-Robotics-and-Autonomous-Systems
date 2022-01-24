@@ -1,11 +1,16 @@
 #!/usr/bin/env python
-
+#Heavily based on image project 3 workshop solution and the opencv example
+#https://github.com/LCAS/CMP9767M/blob/master/uol_cmp9767m_tutorial/scripts/image_projection_3.py
+#https://github.com/LCAS/CMP9767M/blob/master/uol_cmp9767m_tutorial/scripts/opencv_test.py
 # Python libs
+from pickle import TRUE
 import sys, time
-
+from multiprocessing import ProcessError
+from turtle import position
 # OpenCV
 import cv2
-
+from cv2 import blur, Canny, resize, INTER_CUBIC
+import numpy as np
 # Ros libraries
 #sudo apt update
 #sudo apt install python-image-geometry
@@ -70,22 +75,26 @@ class image_projection:
         self.image_depth_ros = data
 
     def image_color_callback_master(self,data,frame_id,active_camera):
-        camera = data
+
         try:
-            cv2.namedWindow("front_image color")
-            cv2.namedWindow("left_image color")
-            cv2.namedWindow("right_image color")
+            # cv2.namedWindow("front_image color")
+            # cv2.namedWindow("left_image color")
+            # cv2.namedWindow("right_image color")
 
-            cv2.namedWindow("front_image depth")
-            cv2.namedWindow("left_image depth")
-            cv2.namedWindow("right_image depth")
+            # cv2.namedWindow("front_image depth")
+            # cv2.namedWindow("left_image depth")
+            # cv2.namedWindow("right_image depth")
 
-                    # wait for camera_model and depth image to arrive
+            # wait for camera_model and depth image to arrive
             if self.camera_model is None:
                 return
 
             if self.image_depth_ros is None:
                 return
+
+            # if kernel is too big then the blobs wont be detected    
+            self.kernelOpen=np.ones((10,10))# uses two techniques called dialation and erosion to open and image an filter out noise to increase the accuracy of the mask
+            self.kernelClose=np.ones((25,25))
 
             # covert images to open_cv
             try:
@@ -96,6 +105,21 @@ class image_projection:
 
             # detect a grape in the color image
             image_mask = cv2.inRange(image_color, (100,30,55), (255,255,255))
+            
+            #convert BGR to HSV
+            image_colorHSV= cv2.cvtColor(image_color,cv2.COLOR_BGR2HSV)
+            #cv2.imshow('HSV',image_colorHSV)
+
+            #morphology open and close to remove noise in the image
+            self.image_maskClose=cv2.morphologyEx(image_mask,cv2.MORPH_CLOSE,self.kernelClose)
+            self.image_maskOpen=cv2.morphologyEx(self.image_maskClose,cv2.MORPH_OPEN,self.kernelOpen)
+            
+            #conts stores the number of contours that are detected in the image
+            image_maskFinal=self.image_maskOpen
+            _,conts,h=cv2.findContours(image_maskFinal.copy(),cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
+            
+
+
             # calculate moments of the binary image
             M = cv2.moments(image_mask)
 
@@ -139,11 +163,39 @@ class image_projection:
 
             print ('map coords: ', p_camera.pose.position)
             print ('')
+            self.temp = p_camera.pose.position
+            #https://www.w3schools.com/python/python_sets_methods.asp
+            #https://www.programiz.com/python-programming/methods/set/add
+            
+            object_coordinates = set()
+            bunches=0
+
+            object_coordinates.add(self.temp)
+            bunches =len(object_coordinates)
+
+            #Now that i have a map coordinate i save it to a tuple and for each contor created i only count it if the current map coordinate is new, i.e if looking at a new grape.
+            cv2.drawContours(image_color,conts,-1,(255,0,0),1)
+            for i in range(len(conts)):
+                x,y,w,h=cv2.boundingRect(conts[i])
+                cv2.rectangle(image_color,(x,y),(x+w,y+h),(0,0,255), 2)# we draw a box around each contour 
+                cv2.putText(image_color, str(i+1),(x,y+h),cv2.FONT_HERSHEY_SIMPLEX,0.7,(0,255,0))#count the number of contours there are
+               
+            #counts number of bounding boxes on screen    
+            print(bunches, " bunches of grapes have been detected")
 
             if self.visualisation:
                 # draw circles
                 cv2.circle(image_color, (int(image_coords[1]), int(image_coords[0])), 10, 255, -1)
                 cv2.circle(image_depth, (int(depth_coords[1]), int(depth_coords[0])), 5, 255, -1)
+
+                cv2.circle(image_color, (int(image_coords[0]), int(image_coords[0])), 10, 255, -1)
+                cv2.circle(image_depth, (int(depth_coords[0]), int(depth_coords[0])), 5, 255, -1)
+
+                cv2.circle(image_color, (int(image_coords[1]), int(image_coords[1])), 10, 255, -1)
+                cv2.circle(image_depth, (int(depth_coords[1]), int(depth_coords[1])), 5, 255, -1)
+
+                cv2.circle(image_color, (int(image_coords[0]), int(image_coords[1])), 10, 255, -1)
+                cv2.circle(image_depth, (int(depth_coords[0]), int(depth_coords[1])), 5, 255, -1)
 
                 #resize and adjust for visualisation
 
@@ -154,7 +206,7 @@ class image_projection:
                     front_image_color = image_color
                     front_image_depth = image_depth
                     cv2.imshow("front_image depth", front_image_depth)
-                    cv2.imshow("front_image color", front_image_color)
+                    # cv2.imshow("front_image color", front_image_color)
                     cv2.waitKey(1)
                 # if active_camera == "Right Camera":
                 #     right_image_color = image_color
@@ -168,6 +220,11 @@ class image_projection:
                 #     cv2.imshow("left_image depth", left_image_depth)
                 #     cv2.imshow("left_image color", left_image_color)
                 #     cv2.waitKey(1)
+
+                    # cv2.imshow("image_maskClose", self.image_maskClose)
+                    # cv2.imshow("image_maskOpen",self.image_maskOpen)
+                    # cv2.imshow("image_mask",image_mask)
+                    cv2.imshow("cam",image_color)
         except Exception as e:
             print(e)
             
@@ -208,6 +265,7 @@ def main(args):
         rospy.spin()
     except KeyboardInterrupt:
         print ("Shutting down")
+    cv2.cap.release()
     cv2.destroyAllWindows()
 
 if __name__ == '__main__':
