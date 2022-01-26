@@ -34,12 +34,11 @@ class Mover:
         rospy.Subscriber("/thorvald_001/kinect2_front_camera/hd/image_color_rect",
             Image, self.image_callback)
 
-        self.object_cords_sub = rospy.Subscriber("/thorvald_001/object_location",PoseStamped, self.object_coords)
+        #self.object_cords_sub = rospy.Subscriber("/thorvald_001/object_location",PoseStamped, self.object_coords)
         #use to make the robot move
         self.twist = Twist()
     
-    def object_coords(self,data):
-        self.object_location = data.pose.position
+
 
     
     def laser_callback(self, data):
@@ -130,8 +129,6 @@ class Mover:
             cv2.rectangle(image,(x,y),(x+w,y+h),(0,0,255), 2)# we draw a box around each contour 
             cv2.putText(image, str(i+1),(x,y+h),cv2.FONT_HERSHEY_SIMPLEX,0.7,(0,255,0))#count the number of contours there are
             
-            print(self.object_location)
-        
         #counts number of bounding boxes on screen    
         print(len(conts), " bunches of grapes have been detected")
         h, w, d = image.shape

@@ -15,4 +15,6 @@ sudo apt install python-pip
 pip3 --version
 #May need to install sklearn
 pip install -U scikit-learn
+#Install imutils for grabbing contors
+pip install imutils
 exit

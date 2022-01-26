@@ -8,6 +8,7 @@ from pickle import TRUE
 import sys, time
 import math
 from multiprocessing import ProcessError
+from tkinter import EXCEPTION
 from turtle import position
 # OpenCV
 import cv2
@@ -28,6 +29,8 @@ from geometry_msgs.msg import PoseStamped
 from cv_bridge import CvBridge, CvBridgeError
 from sensor_msgs.msg import PointCloud2
 from sensor_msgs import point_cloud2
+import imutils
+
 class image_projection:
     camera_model = None
     image_depth_ros = None
@@ -104,72 +107,79 @@ class image_projection:
             
             #conts stores the number of contours that are detected in the image
             image_maskFinal=image_maskOpen
-            _,conts,h=cv2.findContours(image_maskFinal.copy(),cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
+            conts = cv2.findContours(image_maskFinal.copy(),cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
             # calculate moments of the binary image
-            M = cv2.moments(image_maskFinal)
+            conts = imutils.grab_contours(conts)
+            for c in conts:
+                try:
+                    M = cv2.moments(c)
 
-            if M["m00"] == 0:
-                print ('No grapes detected in', camera_info_msg.header.frame_id)
-                return
-            else:
-                print("grapes detected in", camera_info_msg.header.frame_id)
-            # calculate the y,x centroid
-            image_coords = (M["m01"] / M["m00"], M["m10"] / M["m00"])
-            # "map" from color to depth image
-            depth_coords = (image_depth.shape[0]/2 + (image_coords[0] - image_color.shape[0]/2)*color2depth_aspect,
-                image_depth.shape[1]/2 + (image_coords[1] - image_color.shape[1]/2)*color2depth_aspect)
-            # get the depth reading at the centroid location
-            depth_value = image_depth[int(depth_coords[0]), int(depth_coords[1])] # you might need to do some boundary checking first!
+                    # if M["m00"] == 0:
+                    #     print ('No grapes detected in', camera_info_msg.header.frame_id)
+                    #     return
+                    # else:
+                    #     print("grapes detected in", camera_info_msg.header.frame_id)
+                    # calculate the y,x centroid
+                    image_coords = (M["m01"] / M["m00"], M["m10"] / M["m00"])
+                    # "map" from color to depth image
+                    depth_coords = (image_depth.shape[0]/2 + (image_coords[0] - image_color.shape[0]/2)*color2depth_aspect,
+                        image_depth.shape[1]/2 + (image_coords[1] - image_color.shape[1]/2)*color2depth_aspect)
+                    # get the depth reading at the centroid location
+                    depth_value = image_depth[int(depth_coords[0]), int(depth_coords[1])] # you might need to do some boundary checking first!
 
-            print ('image coords: ', image_coords)
-            print ('depth coords: ', depth_coords)
-            print ('depth value: ', depth_value)
+                    print ('image coords: ', image_coords)
+                    print ('depth coords: ', depth_coords)
+                    print ('depth value: ', depth_value)
 
-            # calculate object's 3d location in camera coords
-            camera_coords = camera_model.projectPixelTo3dRay((image_coords[1], image_coords[0])) #project the image coords (x,y) into 3D ray in camera coords
-            camera_coords = [x/camera_coords[2] for x in camera_coords] # adjust the resulting vector so that z = 1
-            camera_coords = [x*depth_value for x in camera_coords] # multiply the vector by depth
+                    # calculate object's 3d location in camera coords
+                    camera_coords = camera_model.projectPixelTo3dRay((image_coords[1], image_coords[0])) #project the image coords (x,y) into 3D ray in camera coords
+                    camera_coords = [x/camera_coords[2] for x in camera_coords] # adjust the resulting vector so that z = 1
+                    camera_coords = [x*depth_value for x in camera_coords] # multiply the vector by depth
 
-            print ('camera coords: ', camera_coords)
-            bunches=0
-            #define a point in camera coordinates
-            object_location = PoseStamped()
-            object_location.header.frame_id = camera_info_msg.header.frame_id
-            object_location.pose.orientation.w = 1.0
-            object_location.pose.position.x = camera_coords[0]
-            object_location.pose.position.y = camera_coords[1]
-            object_location.pose.position.z = camera_coords[2]
+                    print ('camera coords: ', camera_coords)
+                    bunches=0
+                    #define a point in camera coordinates
+                    object_location = PoseStamped()
+                    object_location.header.frame_id = camera_info_msg.header.frame_id
+                    object_location.pose.orientation.w = 1.0
+                    object_location.pose.position.x = camera_coords[0]
+                    object_location.pose.position.y = camera_coords[1]
+                    object_location.pose.position.z = camera_coords[2]
 
-            # publish so we can see that in rviz
-            self.object_location_pub.publish(object_location)
-        
-            # print out the coordinates in the map frame
-            p_camera = self.tf_listener.transformPose('map', object_location)
-
-            print ('map coords: ', p_camera.pose.position)
-            print ('')
+                    # publish so we can see that in rviz
+                    self.object_location_pub.publish(object_location)
                 
-            #temp_list = str([round(p_camera.pose.position.x,1),round(p_camera.pose.position.y,1),round(p_camera.pose.position.z,1)])
-            #self.object_coordinates_set.add(temp_list)
+                    # print out the coordinates in the map frame
+                    p_camera = self.tf_listener.transformPose('map', object_location)
 
-            if(~numpy.isnan(depth_value)):
-                self.object_coordinates.append([round(p_camera.pose.position.x,8),round(p_camera.pose.position.y,8),round(p_camera.pose.position.z,8),])
-                
-                filter(lambda v:v==v,self.object_coordinates)
+                    print ('map coords: ', p_camera.pose.position)
+                    print ('')
+                        
+                    #temp_list = str([round(p_camera.pose.position.x,1),round(p_camera.pose.position.y,1),round(p_camera.pose.position.z,1)])
+                    #self.object_coordinates_set.add(temp_list)
 
-                temp = DBSCAN(eps=0.3, min_samples=2).fit(self.object_coordinates)
-                
-                bunches = np.unique(temp.labels_)
-                #Now that i have a map coordinate i save it to a tuple and for each contor created i only count it if the current map coordinate is new, i.e if looking at a new grape.
-                cv2.drawContours(image_color,conts,-1,(255,0,0),1)
-                for i in range(len(conts)):
-                    x,y,w,h=cv2.boundingRect(conts[i])
-                    cv2.rectangle(image_color,(x,y),(x+w,y+h),(0,0,255), 2)# we draw a box around each contour 
-                    cv2.putText(image_color, str(i+1),(x,y+h),cv2.FONT_HERSHEY_SIMPLEX,0.7,(0,255,0))#count the number of contours there are
+                    if(~numpy.isnan(depth_value)):
+                        self.object_coordinates.append([round(p_camera.pose.position.x,8),round(p_camera.pose.position.y,8),round(p_camera.pose.position.z,8),])
+                        
+                        filter(lambda v:v==v,self.object_coordinates)
 
-                #counts number of bounding boxes on screen    
-                print(len(bunches), " bunches of grapes have been detected")
-                print(bunches)
+                        temp = DBSCAN(eps=0.3, min_samples=2).fit(self.object_coordinates)
+                        
+                        bunches = np.unique(temp.labels_)
+                        # #Now that i have a map coordinate i save it to a tuple and for each contor 
+                        # created i only count it if the current map coordinate is new, i.e if looking at a new grape.
+                        # cv2.drawContours(image_color,conts,-1,(255,0,0),1)
+                        # for i in range(len(conts)):
+                        #     x,y,w,h=cv2.boundingRect(conts[i])
+                        #     cv2.rectangle(image_color,(x,y),(x+w,y+h),(0,0,255), 2)# we draw a box around each contour 
+                        #     cv2.putText(image_color, str(i+1),(x,y+h),cv2.FONT_HERSHEY_SIMPLEX,0.7,(0,255,0))#count the number of contours there are
+
+                    #counts number of bounding boxes on screen    
+                    print(len(bunches), " bunches of grapes have been detected")
+                    #time.sleep(1)
+                    print(bunches)
+                except:
+                    continue
 
         except Exception as e:
             print(e)

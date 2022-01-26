@@ -15,7 +15,8 @@ import roslib, rospy, image_geometry, tf
 from sensor_msgs.msg import Image, CameraInfo
 from geometry_msgs.msg import PoseStamped
 from cv_bridge import CvBridge, CvBridgeError
-
+import imutils
+import numpy as np
 class image_projection:
     camera_model = None
     image_depth_ros = None
@@ -40,25 +41,6 @@ class image_projection:
         rospy.Subscriber("/thorvald_001/kinect2_front_sensor/sd/image_depth_rect",
             Image, self.front_image_depth_callback)
 
-        # #Right camera---------------------------------------------------------
-        # self.right_camera_info_sub = rospy.Subscriber('/thorvald_001/kinect2_right_camera/hd/camera_info',
-        #     CameraInfo, self.right_camera_info_callback)
-
-        # rospy.Subscriber("/thorvald_001/kinect2_right_camera/hd/image_color_rect",
-        #     Image, self.right_image_color_callback)
-
-        # rospy.Subscriber("/thorvald_001/kinect2_right_sensor/sd/image_depth_rect",
-        #     Image, self.right_image_depth_callback)
-
-        # #Left camera--------------------------------------------------------------
-        # self.left_camera_info_sub = rospy.Subscriber('/thorvald_001/kinect2_left_camera/hd/camera_info',
-        #     CameraInfo, self.left_camera_info_callback)
-
-        # rospy.Subscriber("/thorvald_001/kinect2_left_camera/hd/image_color_rect",
-        #     Image, self.left_image_color_callback)
-
-        # rospy.Subscriber("/thorvald_001/kinect2_left_sensor/sd/image_depth_rect",
-        #     Image, self.left_image_depth_callback)
 
         self.tf_listener = tf.TransformListener()
     #Master methods that will be called by each camera callback
@@ -70,17 +52,10 @@ class image_projection:
         self.image_depth_ros = data
 
     def image_color_callback_master(self,data,frame_id,active_camera):
-        camera = data
+        
         try:
-            cv2.namedWindow("front_image color")
-            cv2.namedWindow("left_image color")
-            cv2.namedWindow("right_image color")
 
-            cv2.namedWindow("front_image depth")
-            cv2.namedWindow("left_image depth")
-            cv2.namedWindow("right_image depth")
-
-                    # wait for camera_model and depth image to arrive
+            # wait for camera_model and depth image to arrive
             if self.camera_model is None:
                 return
 
@@ -95,79 +70,92 @@ class image_projection:
                 print (e)
 
             # detect a grape in the color image
-            image_mask = cv2.inRange(image_color, (100,30,55), (255,255,255))
+           # if kernel is too big then the blobs wont be detected    
+            kernelOpen=np.ones((10,10))# uses two techniques called dialation and erosion to open and image an filter out noise to increase the accuracy of the mask
+            kernelClose=np.ones((25,25))
+            
+            #convert BGR to HSV
+            image_colorHSV= cv2.cvtColor(image_color,cv2.COLOR_BGR2HSV)
+            # detect a grape in the color image
+            image_mask = cv2.inRange(image_colorHSV, (100,30,55), (255,255,255))
+ 
+            #cv2.imshow('HSV',image_mask)
+            #morphology open and close to remove noise in the image
+            image_maskClose=cv2.morphologyEx(image_mask,cv2.MORPH_CLOSE,kernelClose)
+            image_maskOpen=cv2.morphologyEx(image_maskClose,cv2.MORPH_OPEN,kernelOpen)
+            
+            image_maskFinal=image_maskOpen
+            conts = cv2.findContours(image_maskFinal.copy(),cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
             # calculate moments of the binary image
-            M = cv2.moments(image_mask)
+            conts = imutils.grab_contours(conts)
+            _,conts_rectangle,h=cv2.findContours(image_maskFinal.copy(),cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
+            
+            cv2.drawContours(image_color,conts_rectangle,-1,(255,0,0),1)
+                 
+            for c in conts:
+                try:
+                   
+                    M = cv2.moments(c)
+                    # calculate the y,x centroid
+                    image_coords = (M["m01"] / M["m00"], M["m10"] / M["m00"])
+                    # "map" from color to depth image
+                    depth_coords = (image_depth.shape[0]/2 + (image_coords[0] - image_color.shape[0]/2)*self.color2depth_aspect,
+                        image_depth.shape[1]/2 + (image_coords[1] - image_color.shape[1]/2)*self.color2depth_aspect)
+                    # get the depth reading at the centroid location
+                    depth_value = image_depth[int(depth_coords[0]), int(depth_coords[1])] # you might need to do some boundary checking first!
 
-            if M["m00"] == 0:
-                print ('No grapes detected.')
-                return
-            else:
-                print("grapes detected in", active_camera)
-            # calculate the y,x centroid
-            image_coords = (M["m01"] / M["m00"], M["m10"] / M["m00"])
-            # "map" from color to depth image
-            depth_coords = (image_depth.shape[0]/2 + (image_coords[0] - image_color.shape[0]/2)*self.color2depth_aspect,
-                image_depth.shape[1]/2 + (image_coords[1] - image_color.shape[1]/2)*self.color2depth_aspect)
-            # get the depth reading at the centroid location
-            depth_value = image_depth[int(depth_coords[0]), int(depth_coords[1])] # you might need to do some boundary checking first!
+                    print ('image coords: ', image_coords)
+                    print ('depth coords: ', depth_coords)
+                    print ('depth value: ', depth_value)
 
-            print ('image coords: ', image_coords)
-            print ('depth coords: ', depth_coords)
-            print ('depth value: ', depth_value)
+                    # calculate object's 3d location in camera coords
+                    camera_coords = self.camera_model.projectPixelTo3dRay((image_coords[1], image_coords[0])) #project the image coords (x,y) into 3D ray in camera coords
+                    camera_coords = [x/camera_coords[2] for x in camera_coords] # adjust the resulting vector so that z = 1
+                    camera_coords = [x*depth_value for x in camera_coords] # multiply the vector by depth
 
-            # calculate object's 3d location in camera coords
-            camera_coords = self.camera_model.projectPixelTo3dRay((image_coords[1], image_coords[0])) #project the image coords (x,y) into 3D ray in camera coords
-            camera_coords = [x/camera_coords[2] for x in camera_coords] # adjust the resulting vector so that z = 1
-            camera_coords = [x*depth_value for x in camera_coords] # multiply the vector by depth
+                    print ('camera coords: ', camera_coords)
 
-            print ('camera coords: ', camera_coords)
+                    #define a point in camera coordinates
+                    object_location = PoseStamped()
+                    object_location.header.frame_id = frame_id
+                    object_location.pose.orientation.w = 1.0
+                    object_location.pose.position.x = camera_coords[0]
+                    object_location.pose.position.y = camera_coords[1]
+                    object_location.pose.position.z = camera_coords[2]
 
-            #define a point in camera coordinates
-            object_location = PoseStamped()
-            object_location.header.frame_id = frame_id
-            object_location.pose.orientation.w = 1.0
-            object_location.pose.position.x = camera_coords[0]
-            object_location.pose.position.y = camera_coords[1]
-            object_location.pose.position.z = camera_coords[2]
+                    # publish so we can see that in rviz
+                    self.object_location_pub.publish(object_location)
 
-            # publish so we can see that in rviz
-            self.object_location_pub.publish(object_location)
+                    # print out the coordinates in the map frame
+                    p_camera = self.tf_listener.transformPose('map', object_location)
 
-            # print out the coordinates in the map frame
-            p_camera = self.tf_listener.transformPose('map', object_location)
+                    print ('map coords: ', p_camera.pose.position)
+                    print ('')
+                    
+                    for i in range (len(conts_rectangle)):
+                        x,y,w,h=cv2.boundingRect(conts_rectangle[i])
+                        cv2.rectangle(image_color,(x,y),(x+w,y+h),(0,0,255), 2)# we draw a box around each contour 
+                        cv2.putText(image_color, str(i+1),(x,y+h),cv2.FONT_HERSHEY_SIMPLEX,0.7,(0,255,0))#count the number of contours there are
+                        
+                    if self.visualisation:
+                    # draw circles
+                        cv2.circle(image_color, (int(image_coords[1]), int(image_coords[0])), 10, 255, -1)
+                        cv2.circle(image_depth, (int(depth_coords[1]), int(depth_coords[0])), 5, 255, -1)
+                except:
+                    continue
+    
+            #resize and adjust for visualisation
 
-            print ('map coords: ', p_camera.pose.position)
-            print ('')
+            image_color = cv2.resize(image_color, (0,0), fx=0.5, fy=0.5)
+            image_depth *= 1.0/10.0 # scale for visualisation (max range 10.0 m)
+            
+            if active_camera == "Front Camera":
 
-            if self.visualisation:
-                # draw circles
-                cv2.circle(image_color, (int(image_coords[1]), int(image_coords[0])), 10, 255, -1)
-                cv2.circle(image_depth, (int(depth_coords[1]), int(depth_coords[0])), 5, 255, -1)
+                cv2.imshow("mask",image_color)
+                cv2.imshow("MaskOpen",image_maskOpen)
+                cv2.imshow("MaskClose",image_maskClose)
+                cv2.waitKey(1)
 
-                #resize and adjust for visualisation
-
-                image_color = cv2.resize(image_color, (0,0), fx=0.5, fy=0.5)
-                image_depth *= 1.0/10.0 # scale for visualisation (max range 10.0 m)
-                
-                if active_camera == "Front Camera":
-                    front_image_color = image_color
-                    front_image_depth = image_depth
-                    cv2.imshow("front_image depth", front_image_depth)
-                    cv2.imshow("front_image color", front_image_color)
-                    cv2.waitKey(1)
-                # if active_camera == "Right Camera":
-                #     right_image_color = image_color
-                #     right_image_depth = image_depth
-                #     cv2.imshow("right_image depth", right_image_depth)
-                #     cv2.imshow("right_image color", right_image_color)
-                #     cv2.waitKey(1)
-                # if active_camera == "Left Camera":
-                #     left_image_color = image_color
-                #     left_image_depth = image_depth
-                #     cv2.imshow("left_image depth", left_image_depth)
-                #     cv2.imshow("left_image color", left_image_color)
-                #     cv2.waitKey(1)
         except Exception as e:
             print(e)
             
@@ -182,23 +170,6 @@ class image_projection:
     def front_image_depth_callback(self,data):
         self.image_depth_callback_master(data)
 
-    #Right camera callback methods
-    def right_camera_info_callback(self,data):
-        self.camera_info_callback_master(data)          
-        self.right_camera_info_sub.unregister() #Only subscribe once
-    def right_image_color_callback(self, data):
-        self.image_color_callback_master(data,"thorvald_001/kinect2_right_rgb_optical_frame","Right Camera")
-    def right_image_depth_callback(self, data):
-        self.image_depth_callback_master(data)
-
-    #Left camera callback methods
-    def left_camera_info_callback(self, data):
-        self.camera_info_callback_master(data)
-        self.left_camera_info_sub.unregister() #Only subscribe once
-    def left_image_color_callback(self, data):
-        self.image_color_callback_master(data,"thorvald_001/kinect2_left_rgb_optical_frame","Left Camera" )
-    def left_image_depth_callback(self, data):
-        self.image_depth_callback_master(data)
 
 def main(args):
     '''Initializes and cleanup ros node'''
