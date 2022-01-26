@@ -31,7 +31,6 @@ from sensor_msgs import point_cloud2
 class image_projection:
     camera_model = None
     image_depth_ros = None
-    object_coordinates = np.array([])
     object_coordinates_set = set()
     visualisation = True
     # aspect ration between color and depth cameras
@@ -155,7 +154,9 @@ class image_projection:
             self.object_coordinates_set.add(temp_list)
 
             bunches =len(self.object_coordinates_set)
-            print(self.object_coordinates_set)
+            self.object_coordinates.append([p_camera.pose.position.x,p_camera.pose.position.y,p_camera.pose.position.z,])
+            temp = DBSCAN(eps=0.03, min_samples=10).fit(self.object_coordinates)
+            print(len(np.unique(temp.labels_)))
             
             #Now that i have a map coordinate i save it to a tuple and for each contor created i only count it if the current map coordinate is new, i.e if looking at a new grape.
             cv2.drawContours(image_color,conts,-1,(255,0,0),1)
