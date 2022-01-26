@@ -24,12 +24,11 @@ class grape_counter:
         self.twist = Twist()
 
     def object_coords(self,data):
-        self.object_location = data
-        self.object_location.pose.position.x
+        self.object_location = data.pose.position
+
+        
     def process_image(self, camera):
-        #Wait for object coordinates to come in
-        if self.object_location is None:
-            return
+
         # if kernel is too big then the blobs wont be detected
 
         self.kernelOpen=np.ones((10,10))# uses two techniques called dialation and erosion to open and image an filter out noise to increase the accuracy of the mask
@@ -66,7 +65,7 @@ class grape_counter:
             cv2.putText(img, str(i+1),(x,y+h),cv2.FONT_HERSHEY_SIMPLEX,0.7,(0,255,0))#count the number of contours there are
             
             #Prints location of detected grape
-            #print(self.object_location)
+            print(self.object_location)
         
         #counts number of bounding boxes on screen    
         print(len(conts), " bunches of grapes have been detected")

@@ -96,7 +96,6 @@ class image_projection:
     
             # detect a grape in the color image
             image_mask = cv2.inRange(image_colorHSV, (100,30,55), (255,255,255))
-            
 
             #cv2.imshow('HSV',image_colorHSV)
             #morphology open and close to remove noise in the image
@@ -110,7 +109,7 @@ class image_projection:
             M = cv2.moments(image_maskFinal)
 
             if M["m00"] == 0:
-                print ('No grapes detected.')
+                print ('No grapes detected in', camera_info_msg.header.frame_id)
                 return
             else:
                 print("grapes detected in", camera_info_msg.header.frame_id)
@@ -171,24 +170,6 @@ class image_projection:
                 #counts number of bounding boxes on screen    
                 print(len(bunches), " bunches of grapes have been detected")
                 print(bunches)
-                if self.visualisation:
-                    # draw circles
-                    cv2.circle(image_color, (int(image_coords[1]), int(image_coords[0])), 10, 255, -1)
-                    cv2.circle(image_depth, (int(depth_coords[1]), int(depth_coords[0])), 5, 255, -1)
-
-                    cv2.circle(image_color, (int(image_coords[0]), int(image_coords[0])), 10, 255, -1)
-                    cv2.circle(image_depth, (int(depth_coords[0]), int(depth_coords[0])), 5, 255, -1)
-
-                    cv2.circle(image_color, (int(image_coords[1]), int(image_coords[1])), 10, 255, -1)
-                    cv2.circle(image_depth, (int(depth_coords[1]), int(depth_coords[1])), 5, 255, -1)
-
-                    cv2.circle(image_color, (int(image_coords[0]), int(image_coords[1])), 10, 255, -1)
-                    cv2.circle(image_depth, (int(depth_coords[0]), int(depth_coords[1])), 5, 255, -1)
-
-                    #resize and adjust for visualisation
-
-                    #image_color = cv2.resize(image_color, (0,0), fx=0.5, fy=0.5)
-                    #image_depth *= 3.0/10.0 # scale for visualisation (max range 10.0 m)
 
         except Exception as e:
             print(e)
