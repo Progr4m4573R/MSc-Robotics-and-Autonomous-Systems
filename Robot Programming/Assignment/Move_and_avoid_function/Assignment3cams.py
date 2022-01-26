@@ -31,12 +31,13 @@ from sensor_msgs import point_cloud2
 class image_projection:
     camera_model = None
     image_depth_ros = None
-    
+    object_coordinates = np.array([])
+    object_coordinates_set = set()
     visualisation = True
     # aspect ration between color and depth cameras
     # calculated as (color_horizontal_FOV/color_width) / (depth_horizontal_FOV/depth_width) from the kinectv2 urdf file
     # (84.1/1920) / (70.0/512)
-    object_coordinates = np.array([])
+    object_coordinates = []
 
     def __init__(self):
 
@@ -91,7 +92,6 @@ class image_projection:
             kernelOpen=np.ones((10,10))# uses two techniques called dialation and erosion to open and image an filter out noise to increase the accuracy of the mask
             kernelClose=np.ones((25,25))
 
-
             #convert BGR to HSV
             image_colorHSV= cv2.cvtColor(image_color,cv2.COLOR_BGR2HSV)
     
@@ -144,23 +144,19 @@ class image_projection:
 
             # publish so we can see that in rviz
             self.object_location_pub.publish(object_location)
-            
-
+        
             # print out the coordinates in the map frame
             p_camera = self.tf_listener.transformPose('map', object_location)
 
             print ('map coords: ', p_camera.pose.position)
             print ('')
                 
-            numpy.append(self.object_coordinates,[p_camera.pose.position.x,p_camera.pose.position.y,p_camera.pose.position.z])
-            ndarray.reshape(10,11)
+            temp_list = str([round(p_camera.pose.position.x,1),round(p_camera.pose.position.y,1),round(p_camera.pose.position.z,1)])
+            self.object_coordinates_set.add(temp_list)
 
-            self.object_coordinates = DBSCAN(eps=3,min_samples=5).fit(self.object_coordinates)
-
-            print(self.object_coordinates)
-
-            bunches =len(self.object_coordinates)
-
+            bunches =len(self.object_coordinates_set)
+            print(self.object_coordinates_set)
+            
             #Now that i have a map coordinate i save it to a tuple and for each contor created i only count it if the current map coordinate is new, i.e if looking at a new grape.
             cv2.drawContours(image_color,conts,-1,(255,0,0),1)
             for i in range(len(conts)):
@@ -170,6 +166,7 @@ class image_projection:
 
             #counts number of bounding boxes on screen    
             print(bunches, " bunches of grapes have been detected")
+            print(self.object_coordinates)
             if self.visualisation:
                 # draw circles
                 cv2.circle(image_color, (int(image_coords[1]), int(image_coords[0])), 10, 255, -1)
