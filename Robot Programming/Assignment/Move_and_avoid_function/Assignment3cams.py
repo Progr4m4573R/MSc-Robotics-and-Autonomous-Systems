@@ -31,7 +31,7 @@ from sensor_msgs import point_cloud2
 class image_projection:
     camera_model = None
     image_depth_ros = None
-    object_coordinates_set = set()
+
     visualisation = True
     # aspect ration between color and depth cameras
     # calculated as (color_horizontal_FOV/color_width) / (depth_horizontal_FOV/depth_width) from the kinectv2 urdf file
@@ -150,42 +150,45 @@ class image_projection:
             print ('map coords: ', p_camera.pose.position)
             print ('')
                 
-            temp_list = str([round(p_camera.pose.position.x,1),round(p_camera.pose.position.y,1),round(p_camera.pose.position.z,1)])
-            self.object_coordinates_set.add(temp_list)
+            #temp_list = str([round(p_camera.pose.position.x,1),round(p_camera.pose.position.y,1),round(p_camera.pose.position.z,1)])
+            #self.object_coordinates_set.add(temp_list)
 
-            bunches =len(self.object_coordinates_set)
-            self.object_coordinates.append([p_camera.pose.position.x,p_camera.pose.position.y,p_camera.pose.position.z,])
-            temp = DBSCAN(eps=0.03, min_samples=10).fit(self.object_coordinates)
-            print(len(np.unique(temp.labels_)))
-            
-            #Now that i have a map coordinate i save it to a tuple and for each contor created i only count it if the current map coordinate is new, i.e if looking at a new grape.
-            cv2.drawContours(image_color,conts,-1,(255,0,0),1)
-            for i in range(len(conts)):
-                x,y,w,h=cv2.boundingRect(conts[i])
-                cv2.rectangle(image_color,(x,y),(x+w,y+h),(0,0,255), 2)# we draw a box around each contour 
-                cv2.putText(image_color, str(i+1),(x,y+h),cv2.FONT_HERSHEY_SIMPLEX,0.7,(0,255,0))#count the number of contours there are
+            if(~numpy.isnan(depth_value)):
+                self.object_coordinates.append([round(p_camera.pose.position.x,8),round(p_camera.pose.position.y,8),round(p_camera.pose.position.z,8),])
+                
+                filter(lambda v:v==v,self.object_coordinates)
 
-            #counts number of bounding boxes on screen    
-            print(bunches, " bunches of grapes have been detected")
-            print(self.object_coordinates)
-            if self.visualisation:
-                # draw circles
-                cv2.circle(image_color, (int(image_coords[1]), int(image_coords[0])), 10, 255, -1)
-                cv2.circle(image_depth, (int(depth_coords[1]), int(depth_coords[0])), 5, 255, -1)
+                temp = DBSCAN(eps=0.3, min_samples=2).fit(self.object_coordinates)
+                
+                bunches = np.unique(temp.labels_)
+                #Now that i have a map coordinate i save it to a tuple and for each contor created i only count it if the current map coordinate is new, i.e if looking at a new grape.
+                cv2.drawContours(image_color,conts,-1,(255,0,0),1)
+                for i in range(len(conts)):
+                    x,y,w,h=cv2.boundingRect(conts[i])
+                    cv2.rectangle(image_color,(x,y),(x+w,y+h),(0,0,255), 2)# we draw a box around each contour 
+                    cv2.putText(image_color, str(i+1),(x,y+h),cv2.FONT_HERSHEY_SIMPLEX,0.7,(0,255,0))#count the number of contours there are
 
-                cv2.circle(image_color, (int(image_coords[0]), int(image_coords[0])), 10, 255, -1)
-                cv2.circle(image_depth, (int(depth_coords[0]), int(depth_coords[0])), 5, 255, -1)
+                #counts number of bounding boxes on screen    
+                print(len(bunches), " bunches of grapes have been detected")
+                print(bunches)
+                if self.visualisation:
+                    # draw circles
+                    cv2.circle(image_color, (int(image_coords[1]), int(image_coords[0])), 10, 255, -1)
+                    cv2.circle(image_depth, (int(depth_coords[1]), int(depth_coords[0])), 5, 255, -1)
 
-                cv2.circle(image_color, (int(image_coords[1]), int(image_coords[1])), 10, 255, -1)
-                cv2.circle(image_depth, (int(depth_coords[1]), int(depth_coords[1])), 5, 255, -1)
+                    cv2.circle(image_color, (int(image_coords[0]), int(image_coords[0])), 10, 255, -1)
+                    cv2.circle(image_depth, (int(depth_coords[0]), int(depth_coords[0])), 5, 255, -1)
 
-                cv2.circle(image_color, (int(image_coords[0]), int(image_coords[1])), 10, 255, -1)
-                cv2.circle(image_depth, (int(depth_coords[0]), int(depth_coords[1])), 5, 255, -1)
+                    cv2.circle(image_color, (int(image_coords[1]), int(image_coords[1])), 10, 255, -1)
+                    cv2.circle(image_depth, (int(depth_coords[1]), int(depth_coords[1])), 5, 255, -1)
 
-                #resize and adjust for visualisation
+                    cv2.circle(image_color, (int(image_coords[0]), int(image_coords[1])), 10, 255, -1)
+                    cv2.circle(image_depth, (int(depth_coords[0]), int(depth_coords[1])), 5, 255, -1)
 
-                image_color = cv2.resize(image_color, (0,0), fx=0.5, fy=0.5)
-                image_depth *= 3.0/10.0 # scale for visualisation (max range 10.0 m)
+                    #resize and adjust for visualisation
+
+                    #image_color = cv2.resize(image_color, (0,0), fx=0.5, fy=0.5)
+                    #image_depth *= 3.0/10.0 # scale for visualisation (max range 10.0 m)
 
         except Exception as e:
             print(e)
