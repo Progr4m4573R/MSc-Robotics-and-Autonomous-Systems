@@ -16,27 +16,34 @@ from math import radians
 import robot_front_camera
 import robot_right_camera
 import robot_left_camera
+
+#This program is based of the CMP9767M mover with pose workshop example. University of Lincoln CMP9767M wiki.Available at: https://github.com/LCAS/CMP9767M. [Accessed on: 27/1/2022]
 class Mover:
     object_location = None
     
     def __init__(self):
+        #created and imported some optional scripts to enable the robots cameras for viewing.
+        # I cannot have all three simultaneously active as this can crash the cv.imshow function
         #robot_front_camera.image_projection()
         #robot_left_camera.image_projection()
         robot_right_camera.image_projection()
-
+        
+        #Created a publiser to send geometry twist messages to the thorvald robot and enable it to move.
         self.publisher = rospy.Publisher(
             '/thorvald_001/teleop_joy/cmd_vel',
             Twist, queue_size=1)
+            #Created a subscriber to listen to the incoming data from the thorvold_001 front laserscan topic 
         rospy.Subscriber("/thorvald_001/front_scan", LaserScan, self.laser_callback)
         self.pose_pub = rospy.Publisher(
             '/nearest_obstacle',
             PoseStamped,queue_size=1
         )
+        #created a lister of type transform listener to retrive the transformations of the robot's pose.
         self.listener = TransformListener()
 
         #Library Used to convert from ROS images to OpenCV
         self.bridge = cv_bridge.CvBridge()
-
+        #created a subscriber to retrieve the incoming image data from the thorvald robot
         rospy.Subscriber("/thorvald_001/kinect2_front_camera/hd/image_color_rect",
             Image, self.image_callback)
 
@@ -44,15 +51,13 @@ class Mover:
         #use to make the robot move
         self.twist = Twist()
     
-
-
     def laser_callback(self, data):
         """
         Callback called any time a new laser scan becomes available
         """
 
         rospy.logdebug("I heard %s", data.header.seq)
-
+        #set a minimum safe distance to prevent the robot crashing into obstacles
         min_dist = min(data.ranges)
 
         t = self.twist
@@ -67,7 +72,7 @@ class Mover:
             t.linear.x = 0.8
 
         self.publisher.publish(t)
-
+        #gets the number of ranges of scans from the laser scanner and returns the min of the value
         index_min = min(
             range(len(data.ranges)),
             key=data.ranges.__getitem__)
@@ -109,18 +114,20 @@ class Mover:
     def image_callback(self,camera_info_msg):
         t=Twist()
         cv2.namedWindow("Front_camera",1)
-        
+        #Below i apply Morphological Transformations to remvoe excess data from my image 
+    
+        #created two arrays, one big and one small to store the data after a mask open and close operation is done
         # if kernel is too big then the blobs wont be detected
-
         self.kernelOpen=np.ones((10,10))# uses two techniques called dialation and erosion to open and image an filter out noise to increase the accuracy of the mask
         self.kernelClose=np.ones((25,25))
+        #after converting from ros image to open cv2 image and then to hsv to make the grapes easier to pick out
         image = self.bridge.imgmsg_to_cv2(camera_info_msg,desired_encoding='bgr8')
         hsv=cv2.cvtColor(image,cv2.COLOR_BGR2HSV)
-        
+        #Lastly, I use the in.Range function to filter out every colour but purple
         # detect a grape in the color image
         image_mask = cv2.inRange(hsv, (100,30,55), (255,255,255))
 
-         #morphology
+        #Morphological transformations
         self.maskClose=cv2.morphologyEx(image_mask,cv2.MORPH_CLOSE,self.kernelClose)
 
         self.maskOpen=cv2.morphologyEx(self.maskClose,cv2.MORPH_OPEN,self.kernelOpen)
@@ -128,7 +135,7 @@ class Mover:
         #conts stores the number of contours that are detected in the image
         maskFinal=self.maskOpen
         _,conts,h=cv2.findContours(maskFinal.copy(),cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
-        
+        #I use the drawCOntours function to draw a rectangle around all contours that re detected in the image and within my purple mask
         cv2.drawContours(image,conts,-1,(255,0,0),1)
         for i in range(len(conts)):
             x,y,w,h=cv2.boundingRect(conts[i])
@@ -139,24 +146,26 @@ class Mover:
         print(len(conts), " bunches of grapes have been detected")
         h, w, d = image.shape
         gM = cv2.moments(image_mask)
-        
+        #I use my grape mask to create a cx and cy variable which where the mask is detected
         if gM['m00'] > 0:
             print("grape detected!")
             cx = int(gM['m10']/gM['m00'])
             cy = int(gM['m01']/gM['m00'])
             cv2.circle(image, (cx, cy), 10, (0, 0, 255), -1)
-
+            #i use the difference between the width of the image and w of the camera to create an eror variable
             err = cx - w/2
             self.twist.linear.x = 0.5
+            #this error variable is used to correct the robot's angle so it remains facing the mask
             self.twist.angular.z = -float(err) / 1000
             print (t.angular.z)
             print("moving... via moments to grape")
+            #i then publish a moment of 0.5m/s to the robot while it does this to make thorvald move to grapes
             self.publisher.publish(self.twist)
         else:#M is not greater than 0 so the robot moves aimlessly without direction.  
             #"moving... w/o moments")
             return True
-        cv2.imshow("Front_camera", image)
-        cv2.imshow("Final Mask", maskFinal)
+        #cv2.imshow("Front_camera", image)
+        #cv2.imshow("Final Mask", maskFinal)
         cv2.waitKey(3)
 
     def robot_control(self):
