@@ -77,9 +77,9 @@ class image_projection:
         ls.registerCallback(self.image_cb)
 
         self.tf_listener = tf.TransformListener()
-        robot_front_camera.image_projection()
+        #robot_front_camera.image_projection()
         #robot_left_camera.image_projection()
-        #robot_right_camera.image_projection()
+        robot_right_camera.image_projection()
     def image_cb(self, camera_info_msg, rgb_msg, depth_msg):
 
         try:
@@ -167,18 +167,11 @@ class image_projection:
                         
                         filter(lambda v:v==v,self.object_coordinates)
 
-                        temp = DBSCAN(eps=0.3, min_samples=2).fit(self.object_coordinates)
+                        temp = DBSCAN(eps=0.05, min_samples=15).fit(self.object_coordinates)
                         
                         bunches = np.unique(temp.labels_)
-                        # #Now that i have a map coordinate i save it to a tuple and for each contor 
-                        # created i only count it if the current map coordinate is new, i.e if looking at a new grape.
-                        # cv2.drawContours(image_color,conts,-1,(255,0,0),1)
-                        # for i in range(len(conts)):
-                        #     x,y,w,h=cv2.boundingRect(conts[i])
-                        #     cv2.rectangle(image_color,(x,y),(x+w,y+h),(0,0,255), 2)# we draw a box around each contour 
-                        #     cv2.putText(image_color, str(i+1),(x,y+h),cv2.FONT_HERSHEY_SIMPLEX,0.7,(0,255,0))#count the number of contours there are
-
-                    #counts number of bounding boxes on screen    
+                        
+                     
                     print(len(bunches), " bunches of grapes have been detected")
                     #time.sleep(1)
                     print(bunches)

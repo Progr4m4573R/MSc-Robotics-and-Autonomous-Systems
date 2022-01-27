@@ -1,13 +1,9 @@
-    #! /usr/bin/env python
+#! /usr/bin/env python
 
 # import ros stuff
 import rospy
 from sensor_msgs.msg import LaserScan
 from geometry_msgs.msg import Twist
-from nav_msgs.msg import Odometry
-from tf import transformations
-
-import math
 
 pub_ = None
 regions_ = {
@@ -19,9 +15,10 @@ regions_ = {
 }
 state_ = 0
 state_dict_ = {
-    0: 'find the wall',
+    0: 'find the grapes',
     1: 'turn left',
-    2: 'follow the wall',
+    2: 'follow the grapes',
+    3: 'turn right',
 }
 def clbk_laser(msg):
     global regions_
@@ -29,7 +26,7 @@ def clbk_laser(msg):
         'right': min(min(msg.ranges[0:143]), 10),
         'fright':min(min(msg.ranges[144:287]), 10),
         'front':min(min(msg.ranges[288:431]), 10),
-        'fleftt':min(min(msg.ranges[432:575]), 10),
+        'fleft':min(min(msg.ranges[432:575]), 10),
         'left':min(min(msg.ranges[576:713]), 10),
     }
     take_action()
@@ -39,12 +36,14 @@ def change_state(state):
     if state is not state_:
         print('Grape follower - [%s] - %s' %(state,state_dict_[state]))
         state_ = state
+
 def take_action():
     global regions_
     regions = regions_
     msg = Twist()
     linear_x = 0
     angular_z = 0
+
     state_description = ''
 
     d = 1.5
@@ -78,15 +77,15 @@ def take_action():
         rospy.loginfo(regions)
 
 
-def find_wall():
+def find_grapes():
     msg = Twist()
     msg.linear.x = 0.2
-    msg.angular.z = 0.3
+    msg.angular.z = -0.1
     return msg
 
 def turn_left():
     msg = Twist()
-    msg.angular.z = 0.3
+    msg.angular.z = 0.1
     return msg
 
 def follow_the_grapes():
@@ -95,24 +94,30 @@ def follow_the_grapes():
     msg.linear.x = 0.5
     return msg
 
+def turn_right():
+    msg = Twist()
+    msg.angular.z = 0.1
+
 def main():
     global pub_
     
     rospy.init_node('reading_laser')
     
-    pub_ = rospy.Publisher('/cmd_vel', Twist, queue_size=1)
+    pub_ = rospy.Publisher('/thorvald_001/teleop_joy/cmd_vel', Twist, queue_size=1)
     
-    sub = rospy.Subscriber('/m2wr/laser/scan', LaserScan, clbk_laser)
+    rospy.Subscriber('/thorvald_001/front_scan', LaserScan, clbk_laser)
     
     rate = rospy.Rate(20)
     while not rospy.is_shutdown():
         msg = Twist()
         if state_ == 0:
-            msg = find_wall()
+            msg = find_grapes()
         elif state_ == 1:
             msg = turn_left()
         elif state_ == 2:
             msg = follow_the_grapes()
+        elif state_ == 3:
+            msg = turn_right()
             pass
         else:
             rospy.logerr('Unknown state!')
