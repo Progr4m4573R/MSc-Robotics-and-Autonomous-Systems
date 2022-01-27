@@ -101,7 +101,7 @@ def turn_right():
 def main():
     global pub_
     
-    rospy.init_node('reading_laser')
+    #rospy.init_node('reading_laser')
     
     pub_ = rospy.Publisher('/thorvald_001/teleop_joy/cmd_vel', Twist, queue_size=1)
     

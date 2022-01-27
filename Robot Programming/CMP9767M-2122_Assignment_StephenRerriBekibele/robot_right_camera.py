@@ -151,8 +151,8 @@ class image_projection:
             
             if active_camera == "Right Camera":
 
-                cv2.imshow("mask",image_color)
-                # cv2.imshow("MaskOpen",image_maskOpen)
+                cv2.imshow("Right_Camera_Detection",image_color)
+                cv2.imshow("MaskOpen",image_maskOpen)
                 # cv2.imshow("MaskClose",image_maskClose)
                 cv2.waitKey(1)
 

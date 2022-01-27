@@ -1,10 +1,13 @@
 #! /usr/bin/env python
 
+#The Construct. Exploring ROS with a 2 wheeled robot #7 - Wall Follower Algorithm, Available at: https://www.theconstructsim.com/wall-follower-algorithm/. [Accessed 26th JAnuary 20222]
+
 # import ros stuff
 import rospy
 from sensor_msgs.msg import LaserScan
 from geometry_msgs.msg import Twist
 
+# Define variables for the directions we want the robot to be able to turn
 pub_ = None
 regions_ = {
     'right': 0,
@@ -13,6 +16,7 @@ regions_ = {
     'fleft': 0,
     'left': 0,
 }
+#This state variable allows us to switch between the states we define in stae_dict_
 state_ = 0
 state_dict_ = {
     0: 'find the grapes',
@@ -20,6 +24,7 @@ state_dict_ = {
     2: 'follow the grapes',
     3: 'turn right',
 }
+#Created a laser callback to recieve the data from the laser sensor
 def clbk_laser(msg):
     global regions_
     regions_= {
@@ -30,13 +35,13 @@ def clbk_laser(msg):
         'left':min(min(msg.ranges[576:713]), 10),
     }
     take_action()
-
+#This state variable determines how the robot will switch between each possible state 
 def change_state(state):
     global state_, state_dict_
     if state is not state_:
         print('Grape follower - [%s] - %s' %(state,state_dict_[state]))
         state_ = state
-
+#This function decides what actions the robot takes in the differnt states
 def take_action():
     global regions_
     regions = regions_
@@ -76,13 +81,13 @@ def take_action():
         state_description = 'unknown case'
         rospy.loginfo(regions)
 
-
+#A Function to enable the robot to drive around until a grape wall is detected.
 def find_grapes():
     msg = Twist()
     msg.linear.x = 0.2
     msg.angular.z = -0.1
     return msg
-
+#We define an action for each state we want the robot to be able to be in.
 def turn_left():
     msg = Twist()
     msg.angular.z = 0.1
@@ -98,10 +103,11 @@ def turn_right():
     msg = Twist()
     msg.angular.z = 0.1
 
+#The main function allows the robot to do different actions depending on the state it is in. 
 def main():
     global pub_
     
-    rospy.init_node('reading_laser')
+    rospy.init_node('reading_laser')#reading_laser
     
     pub_ = rospy.Publisher('/thorvald_001/teleop_joy/cmd_vel', Twist, queue_size=1)
     
@@ -121,10 +127,9 @@ def main():
             pass
         else:
             rospy.logerr('Unknown state!')
-        
         pub_.publish(msg)
         
         rate.sleep()
-
+    print("Following grape wall...")
 if __name__ == '__main__':
     main()

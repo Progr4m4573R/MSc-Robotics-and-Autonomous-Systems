@@ -16,6 +16,8 @@ from math import radians
 import robot_front_camera
 import robot_right_camera
 import robot_left_camera
+from topic_tools.srv import MuxAdd
+from topic_tools.srv import MuxDelete
 class Mover:
     object_location = None
     

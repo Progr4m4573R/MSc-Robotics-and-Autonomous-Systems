@@ -30,9 +30,9 @@ from cv_bridge import CvBridge, CvBridgeError
 from sensor_msgs.msg import PointCloud2
 from sensor_msgs import point_cloud2
 import imutils
-import robot_front_camera
-import robot_right_camera
-import robot_left_camera
+#import robot_front_camera
+#import robot_right_camera
+#import robot_left_camera
 class image_projection:
     camera_model = None
     image_depth_ros = None
@@ -79,7 +79,7 @@ class image_projection:
         self.tf_listener = tf.TransformListener()
         #robot_front_camera.image_projection()
         #robot_left_camera.image_projection()
-        robot_right_camera.image_projection()
+        #robot_right_camera.image_projection()
     def image_cb(self, camera_info_msg, rgb_msg, depth_msg):
 
         try:
@@ -118,12 +118,6 @@ class image_projection:
                 try:
                     M = cv2.moments(c)
 
-                    # if M["m00"] == 0:
-                    #     print ('No grapes detected in', camera_info_msg.header.frame_id)
-                    #     return
-                    # else:
-                    #     print("grapes detected in", camera_info_msg.header.frame_id)
-                    # calculate the y,x centroid
                     image_coords = (M["m01"] / M["m00"], M["m10"] / M["m00"])
                     # "map" from color to depth image
                     depth_coords = (image_depth.shape[0]/2 + (image_coords[0] - image_color.shape[0]/2)*color2depth_aspect,
@@ -167,7 +161,7 @@ class image_projection:
                         
                         filter(lambda v:v==v,self.object_coordinates)
 
-                        temp = DBSCAN(eps=0.05, min_samples=15).fit(self.object_coordinates)
+                        temp = DBSCAN(eps=0.05, min_samples=17).fit(self.object_coordinates)
                         
                         bunches = np.unique(temp.labels_)
                         

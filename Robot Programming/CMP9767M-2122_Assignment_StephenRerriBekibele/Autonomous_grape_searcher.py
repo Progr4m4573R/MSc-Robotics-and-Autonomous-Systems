@@ -59,7 +59,8 @@ class Mover:
 
         # If anything is closer than 4 metres anywhere in the
         # scan, we turn away
-        if min_dist < 1:
+        if min_dist < 2:
+            t.linear.x = -0.2
             t.angular.z = 2.0
         else:  # if all obstacles are far away, let's keep 
             # moving forward at 0.8 m/s

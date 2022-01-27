@@ -151,15 +151,14 @@ class image_projection:
             
             if active_camera == "Front Camera":
 
-                cv2.imshow("mask",image_color)
-                # cv2.imshow("MaskOpen",image_maskOpen)
+                cv2.imshow("Front Camera Detection",image_color)
+                cv2.imshow("MaskOpen",image_maskOpen)
                 # cv2.imshow("MaskClose",image_maskClose)
                 cv2.waitKey(1)
 
         except Exception as e:
             print(e)
             
-    #Created multiple methods for each camera i will be using and renamed the main methods that will be called multiple times 
     
     #Front camera callback methods
     def front_camera_info_callback(self,data):
