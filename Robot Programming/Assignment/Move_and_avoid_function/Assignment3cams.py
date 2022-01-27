@@ -30,7 +30,9 @@ from cv_bridge import CvBridge, CvBridgeError
 from sensor_msgs.msg import PointCloud2
 from sensor_msgs import point_cloud2
 import imutils
-
+import robot_front_camera
+import robot_right_camera
+import robot_left_camera
 class image_projection:
     camera_model = None
     image_depth_ros = None
@@ -75,7 +77,9 @@ class image_projection:
         ls.registerCallback(self.image_cb)
 
         self.tf_listener = tf.TransformListener()
-
+        robot_front_camera.image_projection()
+        #robot_left_camera.image_projection()
+        #robot_right_camera.image_projection()
     def image_cb(self, camera_info_msg, rgb_msg, depth_msg):
 
         try:

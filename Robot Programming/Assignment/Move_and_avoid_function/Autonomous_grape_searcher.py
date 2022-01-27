@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from glob import glob
 from matplotlib.pyplot import imshow, twinx
 import rospy
 from std_msgs.msg import String
@@ -6,13 +7,28 @@ from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan
 from geometry_msgs.msg import PoseStamped
 from math import cos, sin
-from tf import TransformListener
+from tf import TransformListener, transformations
 import cv2
 import cv_bridge
 from sensor_msgs.msg import Image
 import numpy as np
 from math import radians
-
+from nav_msgs.msg import Odometry
+pub_ = None
+regions__={
+    'right':0,
+    'fright':0,
+    'front':0,
+    'fleft':0,
+    'left':0,
+}
+state_ = 0
+state_dict_ = {
+    0:'find grapes',
+    1:'turn left',
+    2:'follow wall',
+    3:'turn right'
+}
 class Mover:
     object_location = None
     
@@ -40,7 +56,6 @@ class Mover:
     
 
 
-    
     def laser_callback(self, data):
         """
         Callback called any time a new laser scan becomes available
