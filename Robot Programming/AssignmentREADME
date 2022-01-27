@@ -1,0 +1,11 @@
+#The update.sh file can be launched with ./update.sh and will update the system as well as install all necessary dependencies not local to ubuntu 18.04
+
+#The ros.sh file will launch the simulation and can be launched with ./ros.sh. this may also be modified to take in a number between 1 and 5 to launch all other simulations
+
+#To launch my assignment please run the ./assignment.sh as this will launch three main python files.
+
+1.My grape locater script which uses the robots camera to look for a mask of purple and drives the robot to the mask. This also includes object avoidance. 
+
+2.My grape wall following script which simply treats obstacles as a wall and allows thorvald to follow a wall in a circle autonomously for automated counting
+
+3.Grape cordinate recorder script which makes use of all three kinect cameras to record any purple mask of grape it detects. This comes with 3 optional camera scripts that allows that can be launched by simple uncommenting 1 of the 3 and leaving the others commented out otherwise this will cause the code to crash and raise a multithreading exception. In this script the right camera script is called by default as my grape wall following script prioritises keeping the robot on the left side of the grape wall and thus the right camera is the best viewing angle.
