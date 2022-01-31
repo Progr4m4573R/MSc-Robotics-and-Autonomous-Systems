@@ -1,0 +1,3 @@
+﻿  string_to_ascii.cpp
+C:\Users\Ghost\OneDrive\Desktop\MSc-Robotics-and-Autonomous-Systems\Foundations of Robotics\Foundations of robotics arduino codes\string_to_ascii\string_to_ascii\string_to_ascii.cpp(12,20): warning C4018: '<': signed/unsigned mismatch
+  string_to_ascii.vcxproj -> C:\Users\Ghost\OneDrive\Desktop\MSc-Robotics-and-Autonomous-Systems\Foundations of Robotics\Foundations of robotics arduino codes\string_to_ascii\Debug\string_to_ascii.exe
