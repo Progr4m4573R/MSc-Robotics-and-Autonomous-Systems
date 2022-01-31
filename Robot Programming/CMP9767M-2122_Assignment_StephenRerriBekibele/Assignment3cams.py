@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #Heavily based on image project 3 workshop solution and the opencv example
-#https://github.com/LCAS/CMP9767M/blob/master/uol_cmp9767m_tutorial/scripts/image_projection_3.py
-#https://github.com/LCAS/CMP9767M/blob/master/uol_cmp9767m_tutorial/scripts/opencv_test.py
+#University of Lincoln CMP9767M wiki. Available at:https://github.com/LCAS/CMP9767M/blob/master/uol_cmp9767m_tutorial/scripts/image_projection_3.py [Accessed 26/1/2022]
+#University of Lincoln CMP9767M wiki.Available at: https://github.com/LCAS/CMP9767M/blob/master/uol_cmp9767m_tutorial/scripts/opencv_test.py [Accessed 26/1/2022]
 # Python libs
 import collections
 from pickle import TRUE
@@ -30,9 +30,9 @@ from cv_bridge import CvBridge, CvBridgeError
 from sensor_msgs.msg import PointCloud2
 from sensor_msgs import point_cloud2
 import imutils
-import robot_front_camera
-import robot_right_camera
-import robot_left_camera
+#import robot_front_camera
+#import robot_right_camera
+#import robot_left_camera
 class image_projection:
     camera_model = None
     image_depth_ros = None
@@ -44,7 +44,11 @@ class image_projection:
     object_coordinates = []
 
     def __init__(self):
+        # I used message filters to enable 3 cameras to be active and count the grapes 
+        # by switching between them and allowing each one to use the image_callback function
+        #  and append to a global variable array for the grapes map coordinates 
 
+       #ROS Message filters. Available at: http://wiki.ros.org/message_filters [Accessed 26/1/2022]
         #front camera------------------------------------------------------------
         self.bridge = CvBridge()
         self.object_location_pub = rospy.Publisher('/thorvald_001/object_location', PoseStamped, queue_size=10)
@@ -79,7 +83,7 @@ class image_projection:
         self.tf_listener = tf.TransformListener()
         #robot_front_camera.image_projection()
         #robot_left_camera.image_projection()
-        robot_right_camera.image_projection()
+        #robot_right_camera.image_projection()
     def image_cb(self, camera_info_msg, rgb_msg, depth_msg):
 
         try:
@@ -118,12 +122,6 @@ class image_projection:
                 try:
                     M = cv2.moments(c)
 
-                    # if M["m00"] == 0:
-                    #     print ('No grapes detected in', camera_info_msg.header.frame_id)
-                    #     return
-                    # else:
-                    #     print("grapes detected in", camera_info_msg.header.frame_id)
-                    # calculate the y,x centroid
                     image_coords = (M["m01"] / M["m00"], M["m10"] / M["m00"])
                     # "map" from color to depth image
                     depth_coords = (image_depth.shape[0]/2 + (image_coords[0] - image_color.shape[0]/2)*color2depth_aspect,
@@ -164,14 +162,15 @@ class image_projection:
 
                     if(~numpy.isnan(depth_value)):
                         self.object_coordinates.append([round(p_camera.pose.position.x,8),round(p_camera.pose.position.y,8),round(p_camera.pose.position.z,8),])
-                        
+                        #I used a lambda fitler to try and prevent Nan values from getting into my array. This is un-necessary though as this part of the code does not run if NaN values are detected in the depth_value
+                        #Available at: https://www.geeksforgeeks.org/lambda-filter-python-examples/ [Accessed 26/1/2022]
                         filter(lambda v:v==v,self.object_coordinates)
-
-                        temp = DBSCAN(eps=0.05, min_samples=15).fit(self.object_coordinates)
-                        
+                        #The DBSCAN library enables me to get rid of similar values and reduces the likelyhood of recounting.
+                        #Available at: https://scikit-learn.org/stable/modules/generated/sklearn.cluster.DBSCAN.html [Accessed 26/1/2022]
+                        temp = DBSCAN(eps=0.05, min_samples=17).fit(self.object_coordinates)
+                        #getting the number of unique values allows me to count how many new coordinates have been detcted and this is how i can tell if i am looking at a new grape or the same grape
                         bunches = np.unique(temp.labels_)
                         
-                     
                     print(len(bunches), " bunches of grapes have been detected")
                     #time.sleep(1)
                     print(bunches)
