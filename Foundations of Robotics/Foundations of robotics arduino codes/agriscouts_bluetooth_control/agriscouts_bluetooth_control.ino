@@ -1,44 +1,24 @@
 #include <SoftwareSerial.h>
-
+//Baised off the softwareSerial library located at:
+//https://www.arduino.cc/en/Reference/SoftwareSerial
 SoftwareSerial btSerial(10, 11); // RX, TX PIN
-
-String bt_rx;
+//used a char to store the command sent from the 
+//BLE Terminal app on Android ehich sends ASCII or Hexidecimal commands
+char bt_rx;
+//use ledpins to show which way is front and which is back?
 int ledpin = 13;
 
 void setup() {
   Serial.begin(9600);
-  pinMode(ledpin, OUTPUT);
+  pinMode(ledpin, OUTPUT);//set ledpin as output so we can set it on and off
   btSerial.begin(9600);
 }
 
 void loop() {
-  if (btSerial.available()) {
-    bt_rx = btSerial.readString();
-    Serial.print("Received:");
-    Serial.println(bt_rx);
-    if (bt_rx == "on") {
-      digitalWrite(ledpin, HIGH);
-      btSerial.println("LED turned on from command 'on'");
-    }
-    if (bt_rx == "off") {
-      digitalWrite(ledpin, LOW);
-      btSerial.println("LED turned off from command 'off'");
-    }
-    if (bt_rx == 111110) {
-      digitalWrite(ledpin, HIGH);
-      btSerial.println("LED turned on from ascii command 111 110");
-    }
-    if (bt_rx == 111102102) {
-      digitalWrite(ledpin, LOW);
-      btSerial.println("LED turned off from ascii command 111 102 102");
-    }
-    if (bt_rx == 3411110134) {
-      digitalWrite(ledpin, HIGH);
-      btSerial.println("LED turned on from command 34 111 101 34");
-    }
-    if (bt_rx == 3411110210234) {
-      digitalWrite(ledpin, LOW);
-      btSerial.println("LED turned off from ascii command 34 111 102 102 34");
-    }
+  if (btSerial.available()) {//If the bluetooth buffer has recieved a command from a mobile device
+    Serial.println(callback());
+    while(btSerial.available()){
+      btSerial.read();
   }
+}
 }
