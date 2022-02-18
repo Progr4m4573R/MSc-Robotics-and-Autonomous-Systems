@@ -1,12 +1,16 @@
 #include <SoftwareSerial.h>
 //Baised off the softwareSerial library located at:
 //https://www.arduino.cc/en/Reference/SoftwareSerial
-SoftwareSerial btSerial(10, 11); // RX, TX PIN
+
+
+
+SoftwareSerial btSerial(12, 13); // RX, TX PIN
 //used a char to store the command sent from the 
 //BLE Terminal app on Android ehich sends ASCII or Hexidecimal commands
 char bt_rx;
+
 //use ledpins to show which way is front and which is back?
-int ledpin = 13;
+int ledpin =5;
 
 void setup() {
   Serial.begin(9600);
