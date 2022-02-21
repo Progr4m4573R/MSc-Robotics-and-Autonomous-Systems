@@ -5,8 +5,8 @@
 
 
 SoftwareSerial btSerial(12, 13); // RX, TX PIN
-//used a char to store the command sent from the 
-//BLE Terminal app on Android ehich sends ASCII or Hexidecimal commands
+//used a char to store the command sent from any
+//BLE  app on Android and Iphone capable of sending ASCII or Hexidecimal commands
 char bt_rx;
 
 //use ledpins to show which way is front and which is back?
