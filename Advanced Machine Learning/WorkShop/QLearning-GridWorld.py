@@ -1,3 +1,4 @@
+from re import A
 import numpy as np
 import random
 import math
@@ -16,7 +17,6 @@ class SimpleAgent():
     total_steps = 0
     total_reward = 0
     logged_data = []
-
     def __init__(self): 
         for j in range(1,4): self.GridWorld[2][j] = float("NaN")
         for j in range(6,9): self.GridWorld[2][j] = float("NaN")
@@ -74,16 +74,16 @@ class SimpleAgent():
         axs[1].plot(self.logged_data[:,0], self.logged_data[:,2], 'tab:red')
         plt.show()
          
-    def trainAgent(self):
+    def trainAgent(self,A):
         for i in range(0,self.episodes+1):
             t = 0 
             s = [0,0]
-      
+            actionsequence = []
             while True:
                 a = self.eGreedy(s, self.epsilon)
                 s_prime = self.getNextState(s, self.A[a])
                 r = self.GridWorld[s_prime[0]][s_prime[1]]
-    
+                actionsequence.append(a)
                 current_qvalue = self.Q[a][s[0]][s[1]]
                 a_prime = self.eGreedy(s_prime, 0)
                 next_qvalue = self.Q[a_prime][s_prime[0]][s_prime[1]]
@@ -103,7 +103,8 @@ class SimpleAgent():
                 self.total_reward = 0   
   
         print(str(self.GridWorld)+'\n'+str(self.Q))
+        print(actionsequence)
         
 sa = SimpleAgent()
-sa.trainAgent()
+sa.trainAgent(A)
 sa.plotPerformance()
