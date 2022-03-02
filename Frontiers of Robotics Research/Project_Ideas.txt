@@ -1,0 +1,14 @@
+Program a robot to take pictures, and fly to/ move to target in field.
+improve facial recognition from pictures
+low-cost arduino components
+enables sending of picture remotely for drone to seek and navigate to
+mx-chip to stream data to cloud database and app to access that data and upload to it
+machine learning program to access that data on cloud database and navigate robot to target
+
+Live feed object recognition to mobile app? possible distance measurements as well and dimensions
+
+potential links--------------------
+robots to detect drowning victims:
+https://www.sciencedirect.com/science/article/pii/S0300957220304706
+Robots to play hide and seek:
+http://www.it.uu.se/edu/course/homepage/projektsystek/ht14/Nyheter/Grupper/Report.pdf
