@@ -12,3 +12,4 @@ robots to detect drowning victims:
 https://www.sciencedirect.com/science/article/pii/S0300957220304706
 Robots to play hide and seek:
 http://www.it.uu.se/edu/course/homepage/projektsystek/ht14/Nyheter/Grupper/Report.pdf
+Use machine learning to make the drone learn the best height and angle to be at to accurately detect a human's face faster.
