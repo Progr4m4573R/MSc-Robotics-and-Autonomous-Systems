@@ -6,9 +6,23 @@ mx-chip to stream data to cloud database and app to access that data and upload 
 machine learning program to access that data on cloud database and navigate robot to target
 
 Live feed object recognition to mobile app? possible distance measurements as well and dimensions
+Implement GPS to prevent robot from getting "LOST"?
+
 
 potential links--------------------
 robots to detect drowning victims:
 https://www.sciencedirect.com/science/article/pii/S0300957220304706
 Robots to play hide and seek:
 http://www.it.uu.se/edu/course/homepage/projektsystek/ht14/Nyheter/Grupper/Report.pdf
+
+Existing drones with facial recognition: Larry Haller. THESE 4 DRONES CAN RECOGNISE YOUR FACE. Available at : https://www.dronesglobe.com/guide/face-recognition/ [Accessed: 08/03/2022]'
+
+Questions:
+BUILD a robot or use existing one? - Try to buy a drone if possible. 
+MAke an app to send the pictures to an MXCHIP database or directly to Raspberry Pi or use bluetooth or some other means?
+simple artifcat for demo - first make it easy and make the drone operate in a short distance.
+Ask supervisor for budjet.
+
+Test different algorithms for facial recognition. USe the drone to collect the dataset from a drone. Use other libraries and compare them to see which is the best.
+
+Continue to test the code, are there other similar works in the area

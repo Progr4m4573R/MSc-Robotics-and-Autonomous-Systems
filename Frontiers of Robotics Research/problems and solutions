@@ -1,0 +1,7 @@
+If you are unabel to access the camera and the frames are read as none, this could be a permissions issue which can be solved by adding the user to the videos group:
+
+https://stackoverflow.com/questions/59371075/opencv-error-cant-open-camera-through-video-capture
+
+USing Camorama to test droidcam installed on my phone and linux machine as cheese wont work for me.
+
+To install droidcam i had to sign for it with a public and private key https://ubuntu.com/blog/how-to-sign-things-for-secure-boot
