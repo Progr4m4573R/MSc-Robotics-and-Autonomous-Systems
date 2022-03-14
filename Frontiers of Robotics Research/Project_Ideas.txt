@@ -14,6 +14,7 @@ robots to detect drowning victims:
 https://www.sciencedirect.com/science/article/pii/S0300957220304706
 Robots to play hide and seek:
 http://www.it.uu.se/edu/course/homepage/projektsystek/ht14/Nyheter/Grupper/Report.pdf
+<<<<<<< HEAD
 
 Existing drones with facial recognition: Larry Haller. THESE 4 DRONES CAN RECOGNISE YOUR FACE. Available at : https://www.dronesglobe.com/guide/face-recognition/ [Accessed: 08/03/2022]'
 
@@ -26,3 +27,6 @@ Ask supervisor for budjet.
 Test different algorithms for facial recognition. USe the drone to collect the dataset from a drone. Use other libraries and compare them to see which is the best.
 
 Continue to test the code, are there other similar works in the area
+=======
+Use machine learning to make the drone learn the best height and angle to be at to accurately detect a human's face faster.
+>>>>>>> 412686ed7357ab85829221fb3eb564a329913d4e
