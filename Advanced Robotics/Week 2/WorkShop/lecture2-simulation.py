@@ -24,7 +24,7 @@ import numpy as np
 from scipy import stats
 # global variables
 LOGGING = True         #set full logging to terminal or not...
-EXPLORE = 0.1          #the explore proportion: (1-EXPLORE) for exloit
+EXPLORE = 0.3          #the explore proportion: (1-EXPLORE) for exloit
 MANUAL_FEEDBACK = 0.1  #reward feedback from human: + and -
 NEUTRAL_FEEDBACK = 0.05#if no feedback, this reward applied (+)
 # maze states - leave alone for now
@@ -40,7 +40,7 @@ START = (2, 0)          #third row, first column
 class State:
     def __init__(self, state=START):
         self.board = np.zeros([BOARD_ROWS, BOARD_COLS])
-        self.board[1, 1] = -1
+        self.board[1, 1] = -1# negative reward for being in the pit
         self.state = state
         self.isEnd = False
 
