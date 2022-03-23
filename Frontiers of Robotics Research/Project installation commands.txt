@@ -1,0 +1,11 @@
+Instructions for reproductivity of project:
+Navigate to https://github.com/ageitgey/face_recognition and follow installation instructions that are system specific.
+
+The system I am using is:
+
+Distributor ID:	Ubuntu
+Description:	Ubuntu 18.04.6 LTS
+Release:	18.04
+Codename:	bionic
+
+
