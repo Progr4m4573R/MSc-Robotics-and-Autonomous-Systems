@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from glob import glob
-from matplotlib.pyplot import imshow, twinx
+from turtle import pu
+
 import rospy
 from std_msgs.msg import String
 from geometry_msgs.msg import Twist
@@ -16,17 +17,17 @@ from math import radians
 import robot_front_camera
 import robot_right_camera
 import robot_left_camera
-
+#import Follow_grapes
 #This program is based of the CMP9767M mover with pose workshop example. University of Lincoln CMP9767M wiki.Available at: https://github.com/LCAS/CMP9767M. [Accessed on: 27/1/2022]
 class Mover:
     object_location = None
-    
+
     def __init__(self):
         #created and imported some optional scripts to enable the robots cameras for viewing.
         # I cannot have all three simultaneously active as this can crash the cv.imshow function
         #robot_front_camera.image_projection()
         #robot_left_camera.image_projection()
-        robot_right_camera.image_projection()
+        #robot_right_camera.image_projection()
         
         #Created a publiser to send geometry twist messages to the thorvald robot and enable it to move.
         self.publisher = rospy.Publisher(
@@ -50,7 +51,7 @@ class Mover:
         #self.object_cords_sub = rospy.Subscriber("/thorvald_001/object_location",PoseStamped, self.object_coords)
         #use to make the robot move
         self.twist = Twist()
-    
+
     def laser_callback(self, data):
         """
         Callback called any time a new laser scan becomes available
@@ -65,8 +66,8 @@ class Mover:
         # If anything is closer than 4 metres anywhere in the
         # scan, we turn away
         if min_dist < 2:
-            t.linear.x = -0.2
-            t.angular.z = 2.0
+            self.wall_follower()
+            print("Avoiding obstacle...")
         else:  # if all obstacles are far away, let's keep 
             # moving forward at 0.8 m/s
             t.linear.x = 0.8
@@ -144,6 +145,7 @@ class Mover:
             
         #counts number of bounding boxes on screen    
         print(len(conts), " bunches of grapes have been detected")
+        
         h, w, d = image.shape
         gM = cv2.moments(image_mask)
         #I use my grape mask to create a cx and cy variable which where the mask is detected
@@ -164,8 +166,8 @@ class Mover:
         else:#M is not greater than 0 so the robot moves aimlessly without direction.  
             #"moving... w/o moments")
             return True
-        #cv2.imshow("Front_camera", image)
-        #cv2.imshow("Final Mask", maskFinal)
+        cv2.imshow("Front_camera", image)
+        cv2.imshow("Final Mask", maskFinal)
         cv2.waitKey(3)
 
     def robot_control(self):
@@ -173,6 +175,137 @@ class Mover:
         self.image_callback(self,self.camera_info_msg)
         if self.image_callback()==True:
             self.laser_callback(self,self.incoming_data.ranges[320])
+
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------
+                                                            #Wall following algorithm 
+    def wall_follower(self):
+        #This main function allows the robot to do different actions depending on the state it is in.     
+        global pub_ 
+        
+        pub_ = self.publisher
+        rospy.Subscriber('/thorvald_001/front_scan', LaserScan, clbk_laser)
+        
+        rate = rospy.Rate(20)
+        while not rospy.is_shutdown():
+            msg = Twist()
+            if state_ == 3:
+                msg = find_grapes()
+                print("Looking for grapes")
+            elif state_ == 1:
+                msg = turn_left()
+                print("turning left")
+            elif state_ == 0:
+                msg = follow_the_grapes()
+                print("Following grape wall")
+            elif state_ == 2:
+                msg = turn_right()
+                print("Turning right")
+                pass
+            else:
+                rospy.logerr('Unknown state!')
+            pub_.publish(msg)
+            
+            rate.sleep()
+        print("Following grape wall...")
+
+    # Define variables for the directions we want the robot to be able to turn
+pub_ = None
+regions_ = {
+    'right': 0,
+    'fright': 0,
+    'front': 0,
+    'fleft': 0,
+    'left': 0,
+}
+#This state variable allows us to switch between the states we define in stae_dict_
+state_ = 0
+state_dict_ = {
+    0: 'find the grapes',
+    1: 'turn left',
+    2: 'follow the grapes',
+    3: 'turn right',
+}
+    #Created a laser callback to recieve the data from the laser sensor
+def clbk_laser(msg):
+    global regions_
+    regions_= {
+        'right': min(min(msg.ranges[0:143]), 10),
+        'fright':min(min(msg.ranges[144:287]), 10),
+        'front':min(min(msg.ranges[288:431]), 10),
+        'fleft':min(min(msg.ranges[432:575]), 10),
+        'left':min(min(msg.ranges[576:713]), 10),
+    }
+    take_action()
+    #This state variable determines how the robot will switch between each possible state 
+def change_state(state):
+    global state_, state_dict_
+    if state is not state_:
+        print('Grape follower - [%s] - %s' %(state,state_dict_[state]))
+        state_ = state
+#This function decides what actions the robot takes in the differnt states
+def take_action():
+    global regions_
+    regions = regions_
+    msg = Twist()
+    linear_x = 0
+    angular_z = 0
+
+    state_description = ''
+
+    d = 1.5
+    
+    if regions['front'] > d and regions['fleft'] > d and regions['fright'] > d:
+        state_description = 'case 1 - nothing'
+        change_state(0)
+    elif regions['front'] < d and regions['fleft'] > d and regions['fright'] > d:
+        state_description = 'case 2 - front'
+        change_state(1)
+    elif regions['front'] > d and regions['fleft'] > d and regions['fright'] < d:
+        state_description = 'case 3 - fright'
+        change_state(2)
+    elif regions['front'] > d and regions['fleft'] < d and regions['fright'] > d:
+        state_description = 'case 4 - fleft'
+        change_state(0)
+    elif regions['front'] < d and regions['fleft'] > d and regions['fright'] < d:
+        state_description = 'case 5 - front and fright'
+        change_state(1)
+    elif regions['front'] < d and regions['fleft'] < d and regions['fright'] > d:
+        state_description = 'case 6 - front and fleft'
+        change_state(1)
+    elif regions['front'] < d and regions['fleft'] < d and regions['fright'] < d:
+        state_description = 'case 7 - front and fleft and fright'
+        change_state(1)
+    elif regions['front'] > d and regions['fleft'] < d and regions['fright'] < d:
+        state_description = 'case 8 - fleft and fright'
+        change_state(0)
+    else:
+        state_description = 'unknown case'
+        rospy.loginfo(regions)
+
+#A Function to enable the robot to drive around until a grape wall is detected.
+def find_grapes():
+    msg = Twist()
+    msg.linear.x = 0.2
+    msg.angular.z = -0.1
+    return msg
+#We define an action for each state we want the robot to be able to be in.
+def turn_left():
+    msg = Twist()
+    msg.angular.z = 0.1
+    return msg
+
+def follow_the_grapes():
+    global regions_
+    msg = Twist()
+    msg.linear.x = 0.5
+    return msg
+
+def turn_right():
+    msg = Twist()
+    msg.angular.z = 0.1
+
+
+    
 
 if __name__ == '__main__':
     # as usual, initialise the ROS node with a name

@@ -118,12 +118,16 @@ def main():
         msg = Twist()
         if state_ == 0:
             msg = find_grapes()
+            print("Looking for grapes")
         elif state_ == 1:
             msg = turn_left()
+            print("turning left")
         elif state_ == 2:
             msg = follow_the_grapes()
+            print("Following grape wall")
         elif state_ == 3:
             msg = turn_right()
+            print("Turning right")
             pass
         else:
             rospy.logerr('Unknown state!')
