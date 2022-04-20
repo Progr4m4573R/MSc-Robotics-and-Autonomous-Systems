@@ -9,3 +9,22 @@ Release:	18.04
 Codename:	bionic
 
 
+installing a vm to use the facial recognition library
+https://kumarvinay.com/face-recognition-with-dlib-on-ubuntu-18-04/
+
+install opencv on ubuntu 1804
+https://linuxize.com/post/how-to-install-opencv-on-ubuntu-18-04/
+
+pip install opencv for vm 
+https://pypi.org/project/opencv-python/
+
+install virtualbox  run raspberry pi as alternative to raspberry pi 4 model b
+https://phoenixnap.com/kb/install-virtualbox-on-ubuntu
+
+install virtualbox extension package
+https://ubuntu.pkgs.org/18.04/ubuntu-updates-multiverse-arm64/virtualbox-ext-pack_5.2.42-1~ubuntu1.18.04.1_all.deb.html
+
+installing raspberry pi on virtual box and how to run it
+https://pimylifeup.com/raspberry-pi-virtualbox/
+
+
