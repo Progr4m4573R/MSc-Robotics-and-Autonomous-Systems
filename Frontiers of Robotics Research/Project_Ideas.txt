@@ -44,3 +44,9 @@ PAPER:
 
 casa_token=oXSVWWywS5kAAAAA:V7hlfCSHnSCMpNcezxEe2ON9I2DpMk53GpWck7DCbeHS17YV5tmd1ni_UTJ3EPBzFpYoSda7G6c
 https://www.youtube.com/watch?v=9fmmP51iMx4
+
+Best programming languages for facial recognition:
+
+https://www.freelancinggig.com/blog/2017/08/19/best-programming-languages-face-recognition/
+
+Best facial ecognition library?
