@@ -18,3 +18,4 @@ pythhttps://forums.raspberrypi.com/viewtopic.php?t=287068
 to find my ipaddress for file sharing:
 https://opensource.com/article/18/5/how-find-ip-address-linux
 
+if raspberry pi python client isn't working remember to use pip3 and not pip to install tqdm
