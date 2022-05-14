@@ -1,4 +1,4 @@
-clear all; close all; clc
+clear; close all; clc
 %Task 2 Part 1 select features for radius and direction
 
 %https://uk.mathworks.com/help/images/create-image-histogram.html
@@ -37,6 +37,7 @@ end
 S_r_theta = fft(polarcord_img);
 
 %plot for r=1:100
+S_r=zeros();
 for r=1:100
     S_r(r) = sum((abs(S_r_theta(r+1,:))));
 end
@@ -46,6 +47,7 @@ bar(S_r)
 xlabel('radius')
 ylabel('feature value')
 %Plot for theta=0:360
+S_theta=zeros();
 for theta=1:360
     S_theta(theta) = sum ((abs(S_r_theta(:,theta))));
 end
@@ -58,8 +60,11 @@ ylabel('feature value')
 %Task 2 Part 2 %co-currence matrix
 
 grayscale = rgb2gray(imgpia);
-imhist(grayscale);
-title('imgpia histogram')
+%https://uk.mathworks.com/help/images/ref/imhist.html
+hist = imhist(grayscale);
+title('imgpia histogram');
+%----------------------------Extract features------------
+%https://uk.mathworks.com/matlabcentral/fileexchange/17537-histogram-features-of-a-gray-level-image
+features = chip_histogram_features(grayscale);
+%GLRLM(grayscale); 
 
-%result = make_co_occurence_matrix(imgpia);
-%co_matrix(imgpia)

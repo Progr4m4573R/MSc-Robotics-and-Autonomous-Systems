@@ -16,7 +16,6 @@ for k = 1:length(jpegFiles)
   imageArray = imread(fullFileName);
   %imshow(imageArray);  % Display image.
   %drawnow; % Force display to update immediately.
-  
 end
 
 filePatternGT = fullfile(myGTFolder, '*.png');
@@ -28,7 +27,6 @@ for k = 1:length(GTjpegFiles)
   imageArray = imread(fullFileName);
   %imshow(imageArray);  % Display image.
   %drawnow; % Force display to update immediately.
-  
 end
 
 
@@ -39,4 +37,4 @@ for i = 1: len
     similarity = compute_dice_score(jpegFiles(i),GTjpegFiles(i));
     similarity_array = [similarity_array, similarity];
 end
-mean_score = mean(similarity_array)
+mean_score = mean(similarity_array);
