@@ -1,7 +1,7 @@
 %Read all images in the folder
 %https://uk.mathworks.com/matlabcentral/answers/196072-how-to-read-all-the-images-in-a-folder
-myFolder = "C:\Users\Computing\Desktop\MSc-Robotics-and-Autonomous-Systems\Computer Vision\Assignment\org data";
-myGTFolder = "C:\Users\Computing\Desktop\MSc-Robotics-and-Autonomous-Systems\Computer Vision\Assignment\GT";
+myFolder = "C:\Users\Computing\Desktop\MSc-Robotics-and-Autonomous-Systems\Computer Vision\Assignment\skin lesion dataset\org data";
+myGTFolder = "C:\Users\Computing\Desktop\MSc-Robotics-and-Autonomous-Systems\Computer Vision\Assignment\skin lesion dataset\GT";
 if ~isfolder(myFolder)
   errorMessage = sprintf('Error: The following folder does not exist:\n%s', myFolder);
   uiwait(warndlg(errorMessage));
@@ -31,10 +31,12 @@ for k = 1:length(GTjpegFiles)
   
 end
 
-len = length(jpegFiles);
-similarity_array=zeros(60,0);
-for i = 1: len
-    similarity = compute_dice_score(jpegFiles(i),GTjpegFiles(i));
-    similarity_array = [similarity_array, similarity];
-end
-mean_score = mean(similarity_array)
+%OTSU(jpegFiles(1).name);
+similarity = compute_dice_score(jpegFiles(1),GTjpegFiles(1));
+% len = length(jpegFiles);
+% similarity_array=zeros(60,0);
+% for i = 1: len
+%     similarity = compute_dice_score(jpegFiles(i),GTjpegFiles(i));
+%     similarity_array = [similarity_array, similarity];
+% end
+% mean_score = mean(similarity_array)

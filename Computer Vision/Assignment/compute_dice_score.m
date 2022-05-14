@@ -85,13 +85,11 @@ function similarity = compute_dice_score(x,y)
     plot(boundary(:,2),boundary(:,1),'g','LineWidth',3);
     final = imfill(result,'holes');
     %erode
-
-    %imshow(final)
-    %title("eroded output")
-
+    figure
     %binarize the ground truth to compare
-
     y = imbinarize(gti);
+    imshowpair(final,y,'montage')
+    title("output vs Ground truth")
     %https://uk.mathworks.com/help/images/ref/dice.html
     similarity = dice(final,y);
 end
