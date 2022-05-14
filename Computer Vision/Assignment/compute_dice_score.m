@@ -4,13 +4,26 @@ function similarity = compute_dice_score(x,y)
 %Step 1;
     im  = imread(x.name);
     gti = imread(y.name);
-    %figure
-    %imshow(im(i));
-    %title("Baseline image")
-    %Step 2 
+%     figure
+%     imshow(im);
+%     title("Baseline image")
+    %Step 2
+    %-----------------------enhancing--------------
+    %Testing has shown that enhancing images is unfortunately not good for
+    %some
+    enhanced = imadjust(im,stretchlim(im));
+
+%     figure
+%     imshow(enhanced)
+%     title('enhanced image')
+    %im = enhanced;
     numColors = 3;
     L = imsegkmeans(im,numColors);
     B = labeloverlay(im,L);
+    figure
+    imshowpair(im,enhanced,'montage')
+    title('Baseline left, enhanced right')
+    %------------------------enhancing--------------
     % figure
     % imshow(B)
     % title("Labeled IMage RGB")
@@ -31,15 +44,15 @@ function similarity = compute_dice_score(x,y)
     %First mask is the outer layer of the lesion
     mask1 = pixel_labels==1;
     cluster1 = im.*uint8(mask1);
-    % figure
-    % imshow(cluster1);
-    % title("Objects in Cluster 1");
+%     figure
+%     imshow(cluster1);
+%     title("Objects in Cluster 1");
     %Objects in second cluster, the skin
     mask2 = pixel_labels ==2;
     cluster2 = im.*uint8(mask2);
-    %figure
-    %imshow(cluster2);
-    %title("Objects in Cluster 2");
+%     figure
+%     imshow(cluster2);
+%     title("Objects in Cluster 2");
     %Objects in third cluster, inner parts of the lesion
     mask3 = pixel_labels == 3;
     cluster3 = im.*uint8(mask3);
@@ -63,11 +76,13 @@ function similarity = compute_dice_score(x,y)
 
     %Conver to black and white
     %https://uk.mathworks.com/help/images/ref/imbinarize.html?s_tid=doc_ta
-
+    
+    %----------------draw line around wanted section----------------
+    
     %convert cluster 2 to a binary image to draw a boundary around leison
     se = strel('ball',5,5);
 
-    eroded = imerode(cluster2,se);
+    eroded = imerode(cluster1,se);
 
     grey_cluster = rgb2gray(eroded);
     BW = imbinarize(grey_cluster);
@@ -75,16 +90,21 @@ function similarity = compute_dice_score(x,y)
     % imshowpair(lesion_nuclei,BW, 'montage')
     % title("lesion before and after conversion")
     %figure
+
     result = edge(BW,'log');
     dim = size(BW);
     col = round(dim(2)/2)-90;
     row = min(find(result(:,col)));
     boundary = bwtraceboundary(result,[row,col],'N');
-    %imshow(result)
+    imshow(result)
     hold on;
     plot(boundary(:,2),boundary(:,1),'g','LineWidth',3);
-    final = imfill(result,'holes');
-    %erode
+    %https://uk.mathworks.com/help/images/ref/imclearborder.html
+    e = imclearborder(result);
+    %https://uk.mathworks.com/matlabcentral/answers/254289-how-to-remove-unwanted-small-blob
+    x = bwareafilt(e, 1);
+    final = imfill(x,'holes');
+    %----------------draw line around wanted section----------------
     figure
     %binarize the ground truth to compare
     y = imbinarize(gti);
