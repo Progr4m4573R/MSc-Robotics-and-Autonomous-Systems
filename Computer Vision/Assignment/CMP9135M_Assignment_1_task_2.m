@@ -12,10 +12,10 @@ angle = 360;%total number of angles
 img = double(imgpia);
 [rows, columns] = size(imgpia);
 cy = round(rows/2);
-cx = round(cols/2);
+cx = round(columns/2);
 
 if exist('radius','var') == 0
-    radius = min(round(rows/2),round(cols/2))-1;
+    radius = min(round(rows/2),round(columns/2))-1;
 end
 
 if exist('angle','var') == 0
@@ -34,17 +34,32 @@ for r = 0:radius
 end
 %after converting image
 %%Spectral feature calculation
-S_r_theta = fft.(polarcord_img);
-%Plot for theta
+S_r_theta = fft(polarcord_img);
+
+%plot for r=1:100
+for r=1:100
+    S_r(r) = sum((abs(S_r_theta(r+1,:))));
+end
+figure(1)
+%in order to get spectral feature i convert to fourier domain
+bar(S_r)
+xlabel('radius')
+ylabel('feature value')
+%Plot for theta=0:360
 for theta=1:360
     S_theta(theta) = sum ((abs(S_r_theta(:,theta))));
 end
+
 figure(2)
 bar(S_theta)
 xlabel('theta')
 ylabel('feature value')
-%Task 2 Part 2
-%co-currence matrix
-output = make_co_occurence_matrix(ImgPIA)
 
+%Task 2 Part 2 %co-currence matrix
 
+grayscale = rgb2gray(imgpia);
+imhist(grayscale);
+title('imgpia histogram')
+
+%result = make_co_occurence_matrix(imgpia);
+%co_matrix(imgpia)
