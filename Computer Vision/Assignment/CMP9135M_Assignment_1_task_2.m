@@ -1,48 +1,50 @@
-%Task 2
+clear all; close all; clc
+%Task 2 Part 1 select features for radius and direction
 
-%Part 1 select features from image histogram
 %https://uk.mathworks.com/help/images/create-image-histogram.html
+imgpia = imread('ImgPIA.jpg');
+figure
+imshow(imgpia)
+%set radius and angle
+radius = 100;%chosen radius
+angle = 360;%total number of angles
 
-ImgPIA = imread('ImgPIA.jpg');
-imshow(ImgPIA)
-figure;
-imhist(ImgPIA);
+img = double(imgpia);
+[rows, columns] = size(imgpia);
+cy = round(rows/2);
+cx = round(cols/2);
 
-%Task 2
+if exist('radius','var') == 0
+    radius = min(round(rows/2),round(cols/2))-1;
+end
+
+if exist('angle','var') == 0
+    angle = 360;
+end
+polarcord_img=zeros(); %from cartesian coordinate to polar
+i=1;
+%this loop performs the interpolation for radius and theata angle we use 0
+for r = 0:radius
+    j = 1;
+    for a=0:2*pi/angle:2*pi-2*pi/angle
+    polarcord_img(i,j) = img(cy+round(r*sin(a)),cx+round(r*cos(a)));
+    j = j+1;
+    end
+    i = i+1;
+end
+%after converting image
+%%Spectral feature calculation
+S_r_theta = fft.(polarcord_img);
+%Plot for theta
+for theta=1:360
+    S_theta(theta) = sum ((abs(S_r_theta(:,theta))));
+end
+figure(2)
+bar(S_theta)
+xlabel('theta')
+ylabel('feature value')
+%Task 2 Part 2
 %co-currence matrix
 output = make_co_occurence_matrix(ImgPIA)
 
-%Task 3 setup
-a = csvread('a.csv')
-b = csvread('b.csv')
-x = csvread('x.csv')
-y = csvread('y.csv')
 
-nx = a - x
-ny = b - y
-nx_mean = mean(nx)
-nx_std_dv = std(nx)
-
-ny_mean = mean(ny)
-ny_std_dv = std(ny)
-figure
-plot(x,y,'xb');
-title('Plot of real x and y')
-hold
-%figure
-plot(a,b,'+r');
-title('Plot of noise a and b')
-
-z = [a;b]
-%Task 3 kalman tracking
-[px, py] = kalmanTracking(z)
-figure
-plot(px,py,'o');
-title('Plot of Estimated px and py')
-hold;
-
-%Task 3 Evaluation
-mean_pred1 = x - px
-mean_pred2 = y - py
-e = sqrt((mean_pred1.^2) + (mean_pred2.^2))
-outpout = rms(e)

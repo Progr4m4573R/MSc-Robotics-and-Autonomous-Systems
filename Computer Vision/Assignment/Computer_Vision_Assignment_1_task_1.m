@@ -31,12 +31,12 @@ for k = 1:length(GTjpegFiles)
   
 end
 
-%OTSU(jpegFiles(1).name);
-similarity = compute_dice_score(jpegFiles(1),GTjpegFiles(1));
-% len = length(jpegFiles);
-% similarity_array=zeros(60,0);
-% for i = 1: len
-%     similarity = compute_dice_score(jpegFiles(i),GTjpegFiles(i));
-%     similarity_array = [similarity_array, similarity];
-% end
-% mean_score = mean(similarity_array)
+
+
+len = length(jpegFiles);
+similarity_array=zeros();
+for i = 1: len
+    similarity = compute_dice_score(jpegFiles(i),GTjpegFiles(i));
+    similarity_array = [similarity_array, similarity];
+end
+mean_score = mean(similarity_array)
