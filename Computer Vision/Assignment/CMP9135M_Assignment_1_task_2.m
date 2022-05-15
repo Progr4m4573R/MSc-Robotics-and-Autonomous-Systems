@@ -65,6 +65,40 @@ hist = imhist(grayscale);
 title('imgpia histogram');
 %----------------------------Extract features------------
 %https://uk.mathworks.com/matlabcentral/fileexchange/17537-histogram-features-of-a-gray-level-image
+%GLCM
 features = chip_histogram_features(grayscale);
-%GLRLM(grayscale); 
+%------------------bit depth of image at 4------------------
+bit_depth = 4;
+mask = ones(size(img(:,:,1)));
+[SRE,LRE,GLN,RP,RLN,LGRE,HGRE] = glrlm(grayscale,bit_depth,mask);
+y = [SRE LRE GLN RP RLN LGRE HGRE];
+x = categorical({'SRE','LRE','GLN','RP', 'RLN', 'LGRE', 'HGRE'});
+x = reordercats(x,{'SRE','LRE','GLN','RP', 'RLN', 'LGRE', 'HGRE'});
+subplot(2,2,1)
+graph = bar(x,y);
+title('Quantise value of 4')
+%------------------bit depth of image at 4------------------
 
+%------------------bit depth of image at 6------------------
+bit_depth = 6;
+mask = ones(size(img(:,:,1)));
+[SRE,LRE,GLN,RP,RLN,LGRE,HGRE] = glrlm(grayscale,bit_depth,mask);
+y = [SRE LRE GLN RP RLN LGRE HGRE];
+x = categorical({'SRE','LRE','GLN','RP', 'RLN', 'LGRE', 'HGRE'});
+x = reordercats(x,{'SRE','LRE','GLN','RP', 'RLN', 'LGRE', 'HGRE'});
+subplot(2,2,2)
+graph2 = bar(x,y);
+title('Quantise value of 6')
+%------------------bit depth of image at 6------------------
+
+%------------------bit depth of image at 8------------------
+bit_depth = 8;
+mask = ones(size(img(:,:,1)));
+[SRE,LRE,GLN,RP,RLN,LGRE,HGRE] = glrlm(grayscale,bit_depth,mask);
+y = [SRE LRE GLN RP RLN LGRE HGRE];
+x = categorical({'SRE','LRE','GLN','RP', 'RLN', 'LGRE', 'HGRE'});
+x = reordercats(x,{'SRE','LRE','GLN','RP', 'RLN', 'LGRE', 'HGRE'});
+subplot(2,2,3)
+graph3 = bar(x,y);
+title('Quantise value of 8')
+%------------------bit depth of image at 8------------------

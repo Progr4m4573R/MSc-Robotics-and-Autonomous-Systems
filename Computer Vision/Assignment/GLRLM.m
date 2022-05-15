@@ -1,7 +1,16 @@
-%--------------------------------------------------------------------------
-%https://uk.mathworks.com/matlabcentral/fileexchange/26694-gray-level-run-length-matrix
-% THIS PROGRAM SELECT A ROI, QUNATIZE TO LOWER BIT LEVEL AND COMPUTING 
-% GRAY LEVEL RUN LENGTH MATRIX AND SEVEN TEXTURE PARAMETERS VIZ., 
+%https://www.mathworks.com/matlabcentral/fileexchange/52640-gray-level-run-length-image-statistics
+function [SRE,LRE,GLN,RP,RLN,LGRE,HGRE]  = glrlm(img,quantize,mask)
+% [SRE,LRE,GLN,RP,RLN,LGRE,HGRE]  = glrlm(img,quantize,mask)
+% gray level run length matrix computation
+%
+% input:
+% - img, an input grayscale image (RGB images are converted to grayscale)
+% - quantize, quantization levels. Normally set to 16. Should be larger than 1.
+% - mask, a binary mask to use with values of 1 at the ROI's. If whole image
+%         is needed then mask = ones(size(img(:,:,1)));
+%
+% output: texture features
+%
 %    1. SHORT RUN EMPHASIS (SRE) 
 %    2. LONG RUN EMPHASIS(LRE)
 %    3. GRAY LEVEL NON-UNIFORMITY (GLN)
@@ -9,129 +18,115 @@
 %    5. RUN LENGTH NON-UNIFORMITY (RLN)
 %    6. LOW GRAY LEVEL RUN EMPHASIS (LGRE)
 %    7. HIGH GRAY LEVEL RUN EMPHASIS (HGRE)
-%--------------------------------------------------------------------------
-% AUTHOR: DR. R. KARUNANITHI: DOB 29.12.1974, INDIA
-% DATE OF SUBMISSION 15.02.2010
-% REF: FRITZ ALBREGSTEN, 1995
-%--------------------------------------------------------------------------
-function[] = GLRLM(image)
+%
+% example:
+% I = imread('cameraman.tif');
+% imshow(I)
+% mask = ones(size(I(:,:,1)));
+% quantize = 16;
+% [SRE,LRE,GLN,RP,RLN,LGRE,HGRE]  = glrlm(I,quantize,mask)
+%
+% (c) Wout Oude Elferink, 13-5-2015
+% University Of Twente, The Netherlands
 
-close all
-
-im1=imcrop(image);
-im2=im1(1:128,1:128);
-im2=double(im2);
-[m,n]=size(im2);
-
-% --------- IMAGE QUANTIZATION TO 4 BITS (16 GRAY LEVELS)------------------
-
-Imax=max(max(im2));
-Imin=min(min(im2));
-newim=im2-Imin;
-Nmax=max(max(newim));
-Nmin=min(min(newim));
-Q=round(Nmax/16);
-[m,n]=size(newim);
-Quant=0;
-for i=1:m
-    for j=1:n
-        I = newim(i,j);
-        for B = 1:16
-            if (I>Quant)&&(I<=Quant+Q)
-                newim(i,j)=B/16;
-                Quant=Quant+Q;
-            end            
-        end
-    end
+% if color => make gray scale
+if size(img,3)>1
+   img = im2gray(img); 
 end
-newmax=max(max(newim));
-newim1=newim/newmax;
-newim2=round(newim1*16)+1;
-dir=0; 
-dist1=1;
-if (dir == 1)
-    newim2=newim2';
-end
-mx = max(max(newim2));
-mn = min(min(newim2));
-gl = (mx-mn)+1;
-[p,q] = size(newim2);
-n=p*q;
-count=1;
-c=1;
-col=1;
-grl(mx,p)=0;
-maxcount(p*q)=0;
-mc=0;
 
-%---------------------COMPUTING GRAY LEVEL RUN LENGTH MATRIX---------------
+img = im2double(img); % to double
 
-for j=1:p
-    for k=1:q-dist1
-        mc=mc+1;
-        g=newim2(j,k);
-        f=newim2(j,k+dist1);
-        if (g==f)&&(g~=0)
-            count=count+1;
-            c=count;
-            col=count;
-            maxcount(mc)=count;
-        else
-            grl(g,c)=grl(g,c)+1;col=1;
-            count=1;
-            c=1;
-        end
-    end
-    grl(f,col)=grl(f,col)+1;
-    count=1;
-    c=1;
-end
-I=(mx:mn);
-m=grl(mn:mx,:);
-m1=m';
-maxrun=max(max(maxcount));
-S=0;
-G(gl)=0;
-R(q)=0;
-for u=1:gl
-    for v=1:q
-        G(u)=G(u)+m(u,v);
-        S=S+m(u,v);
-    end
-end
-for u1=1:q
-    for v1=1:gl
-        R(u1)=R(u1)+m1(u1,v1);
-    end
-end
-[dim,dim1]=size(G);
-SRE=0; LRE=0; GLN=0; RLN=0; RP=0; LGRE=0; HGRE=0;
+% crop the image to the mask bounds for faster processing
+stats = regionprops(mask,'BoundingBox');
+bx = int16(floor(stats.BoundingBox)) + int16(floor(stats.BoundingBox)==0);
+img = img(bx(2):bx(2)+bx(4)-1,bx(1):bx(1)+bx(3)-1);
+mask = mask(bx(2):bx(2)+bx(4)-1,bx(1):bx(1)+bx(3)-1);
 
-for h1= 1:maxrun
-    SRE=SRE+(R(h1)/(h1*h1));
-    LRE=LRE+(R(h1)*(h1*h1));
-    RLN=RLN+(R(h1)*R(h1));
-    RP=RP+R(h1);
-end
-SRE1=SRE/S;
-LRE1=LRE/S;
-RLN1=RLN/S;
-RP1=RP/n;
-for h2=1:gl
-    GLN=(GLN+G(h2)^2);
-    LGRE=LGRE+(G(h2)/(h2*h2));
-    HGRE=HGRE+(h2*h2)*G(h2);
-end
-GLN1=GLN/S;
-LGRE1=LGRE/S;
-HGRE1=HGRE/S;
-clc
-% ---------------------------DISPLAY THE PARAMETERS------------------------
+% adjust range
+mini = min(img(:));   % find minimum
+img = img-mini;       % let the range start at 0
+maxi = max(img(:));   % find maximum
 
-fprintf('%6.4f\n',SRE1)
-fprintf('%6.4f\n',LRE1)
-fprintf('%6.4f\n',GLN1)
-fprintf('%6.4f\n',RP1)
-fprintf('%6.4f\n',RLN1)
-fprintf('%6.4f\n',LGRE1)
-fprintf('%6.4f\n',HGRE1)
+% quantize the image to discrete integer values in the range 1:quantize
+levels = maxi/quantize:maxi/quantize:maxi-maxi/quantize;
+img = imquantize(img,levels);
+
+% apply the mask
+img(~mask) = 0;
+
+% initialize glrlm: p(i,j)
+% -  with i the amount of bin values (quantization levels)
+% -  with j the maximum run length (because yet unknown, assume maximum length
+%    of image)
+% -  four different orientations are used (0, 45, 90 and 135 degrees)
+p0 = zeros(quantize,max(size(img)));
+p45 = zeros(quantize,max(size(img)));
+p90 = zeros(quantize,max(size(img)));
+p135 = zeros(quantize,max(size(img)));
+
+% initialize maximum value for j
+maximgS = max(size(img));
+
+% add zeros to the borders
+img = padarray(img,[1 1]);
+
+% initialize rotation
+img45 = imrotate(img,45);
+
+% find the run length for each quantization level
+for i = 1:quantize
+    % find the pixels corresponding to the quantization level
+    BW = int8(img == i);
+    BWr = int8(img45 == i);    
+    
+    % find the start and end points of the run length
+    G0e = (BW(2:end-1,2:end-1) - BW(2:end-1,3:end)) == 1;
+    G0s = (BW(2:end-1,2:end-1) - BW(2:end-1,1:end-2)) == 1;
+    G45e = (BWr(2:end-1,2:end-1) - BWr(2:end-1,3:end)) == 1;
+    G45s = (BWr(2:end-1,2:end-1) - BWr(2:end-1,1:end-2)) == 1;
+    G90e = (BW(2:end-1,2:end-1) - BW(3:end,2:end-1)) == 1;
+    G90s = (BW(2:end-1,2:end-1) - BW(1:end-2,2:end-1)) == 1;
+    G135e = (BWr(2:end-1,2:end-1) - BWr(3:end,2:end-1)) == 1;
+    G135s = (BWr(2:end-1,2:end-1) - BWr(1:end-2,2:end-1)) == 1;
+    
+    % find the indexes
+    G0s = G0s'; G0s = find(G0s(:));
+    G0e = G0e'; G0e = find(G0e(:));
+    G45s = G45s'; G45s = find(G45s(:));
+    G45e = G45e'; G45e = find(G45e(:));
+    G90s = find(G90s(:));
+    G90e = find(G90e(:));
+    G135s = find(G135s(:));
+    G135e = find(G135e(:));
+ 
+    % find the lengths
+    lengths0 = G0e - G0s + 1;
+    lengths45 = G45e - G45s + 1;
+    lengths90 = G90e - G90s + 1;
+    lengths135 = G135e - G135s + 1;
+    
+    % fill the matrix
+    p0(i,:) = hist(lengths0,1:maximgS);
+    p45(i,:) = hist(lengths45,1:maximgS);
+    p90(i,:) = hist(lengths90,1:maximgS);
+    p135(i,:) = hist(lengths135,1:maximgS);    
+end
+
+% add all orientations
+p = p0 + p45 + p90 + p135;
+
+% calculate the features
+totSum = sum(p(:));
+SRE = sum(sum(p,1) ./ ((1:maximgS).^2)) / totSum;
+LRE = sum(sum(p,1) .* ((1:maximgS).^2)) / totSum;
+RLN = sum(sum(p,1) .^2) / totSum;
+RP = totSum / sum(mask(:));
+GLN = sum(sum(p,2) .^2) / totSum;
+LGRE = sum(sum(p,2) .* ((1:quantize)'.^2)) / totSum;
+HGRE = sum(sum(p,2) .^2) / totSum;
+end
+
+
+
+
+    
