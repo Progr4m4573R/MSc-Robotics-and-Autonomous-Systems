@@ -29,11 +29,11 @@ for k = 1:length(GTjpegFiles)
   %drawnow; % Force display to update immediately.
 end
 
-similarity = compute_dice_score(jpegFiles(3),GTjpegFiles(3));
-% len = length(jpegFiles);
-% similarity_array=zeros();
-% for i = 1: len
-%     similarity = compute_dice_score(jpegFiles(i),GTjpegFiles(i));
-%     similarity_array = [similarity_array, similarity];
-% end
-% mean_score = mean(similarity_array);
+%similarity = compute_dice_score(jpegFiles(3),GTjpegFiles(3));
+len = length(jpegFiles);
+similarity_array=zeros();
+for i = 1: len
+    similarity = compute_dice_score(jpegFiles(i),GTjpegFiles(i));
+    similarity_array = [similarity_array, similarity];
+end
+mean_score = mean(similarity_array);

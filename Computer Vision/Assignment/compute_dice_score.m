@@ -92,14 +92,14 @@ function similarity = compute_dice_score(x,y)
     %figure
 
     result = edge(BW,'log');
-    dim = size(BW);
-    col = round(dim(2)/2)-90;
-    row = min(find(result(:,col)));
-    boundary = bwtraceboundary(result,[row,col],'N');
-    imshow(result)
+%     dim = size(BW);
+%     col = round(dim(2)/2)-90;
+%     row = min(find(result(:,col)));
+%     boundary = bwtraceboundary(result,[row,col],'N');
+%     imshow(result)
     
-    hold on;
-    plot(boundary(:,2),boundary(:,1),'g','LineWidth',3);
+%     hold on;
+%     plot(boundary(:,2),boundary(:,1),'g','LineWidth',3);
     %https://uk.mathworks.com/help/images/ref/imclearborder.html
     e = imclearborder(result);
     %https://uk.mathworks.com/matlabcentral/answers/254289-how-to-remove-unwanted-small-blob
