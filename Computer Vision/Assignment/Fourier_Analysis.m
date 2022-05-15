@@ -10,7 +10,6 @@ imshow(f);
 title('a 256 by 256 array of 0s')
 % Compute Fourier Transform
 F = fft2(f,256,256);
-F= double(F);
 figure;
 imshow(F);
 title('Fourier Transform')
@@ -19,17 +18,17 @@ figure;
 imshow(F);
 title('Centre the Fast Fourier Transform')
 % Measure the minimum and maximum value of the transform amplitude
-min(min(abs(F)))
-max(max(abs(F)))
+% min(min(abs(F)))
+% max(max(abs(F)))
 figure;
-imshow(abs(F),[0 100]); colormap(jet); colorbar
+imshow(abs(double(F)),[0 100]); colormap(jet); colorbar
 title('Amplitude')
 figure;
-imshow(log(1+abs(F)),[0,3]); colormap(jet); colorbar
+imshow(log(1+abs(double(F))),[2,3]); colormap(jet); colorbar
 title('Logarithm of Amplitude')
 % Look at the phases
 figure;
-imshow(angle(F),[-pi,pi]); colormap(jet); colorbar
+imshow(angle(double(F)),[0,pi]); colormap(jet); colorbar
 title('Phases')
 
 %inverse the Fourier Fast Transform
@@ -38,12 +37,3 @@ figure;
 imshow(I);
 title('Inverse of Fast Fourier Transform')
 
-
-I = fftshift(I); % Center FFT
-figure;
-imshow(I);
-title('Centre the 3RD Fourier Transform')
-
-figure;
-imshow(log(1+abs(I)),[0,3]); colormap(jet); colorbar
-title('Logarithm of 3RD Amplitude')
