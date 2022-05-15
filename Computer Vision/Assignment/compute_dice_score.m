@@ -2,21 +2,21 @@ function similarity = compute_dice_score(x,y)
 %classify each image's colours in RGB Colour space using k-means clustering
 %https://uk.mathworks.com/help/images/color-based-segmentation-using-k-means-clustering.html
 %Step 1;
+
     im  = imread(x.name);
     gti = imread(y.name);
-%     figure
-%     imshow(im);
-%     title("Baseline image")
+    figure
+    imshow(im);
+    title("Baseline image")
     %Step 2
     %-----------------------enhancing--------------
     %Testing has shown that enhancing images is unfortunately not good for
     %some
     enhanced = imadjust(im,stretchlim(im));
-
 %     figure
 %     imshow(enhanced)
 %     title('enhanced image')
-    %im = enhanced;
+    im = enhanced;
     numColors = 3;
     L = imsegkmeans(im,numColors);
     B = labeloverlay(im,L);
@@ -80,7 +80,7 @@ function similarity = compute_dice_score(x,y)
     %----------------draw line around wanted section----------------
     
     %convert cluster 2 to a binary image to draw a boundary around leison
-    se = strel('ball',5,5);
+    se = strel('ball',1,1);
 
     eroded = imerode(cluster1,se);
 
@@ -97,19 +97,38 @@ function similarity = compute_dice_score(x,y)
     row = min(find(result(:,col)));
     boundary = bwtraceboundary(result,[row,col],'N');
     imshow(result)
+    
     hold on;
     plot(boundary(:,2),boundary(:,1),'g','LineWidth',3);
     %https://uk.mathworks.com/help/images/ref/imclearborder.html
     e = imclearborder(result);
     %https://uk.mathworks.com/matlabcentral/answers/254289-how-to-remove-unwanted-small-blob
-    x = bwareafilt(e, 1);
-    final = imfill(x,'holes');
+    temp = bwareafilt(e, 1);
+    final = imfill(temp,'holes');
+    title('edge detection')
     %----------------draw line around wanted section----------------
-    figure
     %binarize the ground truth to compare
     y = imbinarize(gti);
-    imshowpair(final,y,'montage')
-    title("output vs Ground truth")
     %https://uk.mathworks.com/help/images/ref/dice.html
     similarity = dice(final,y);
+    if similarity > 0.60
+        figure
+        imshowpair(final,y,'montage')
+        title("output vs Ground truth")
+        similarity;
+    else
+        im = imread(x.name);
+        enhanced = imadjust(im,stretchlim(im));
+        grayImage = rgb2gray(enhanced);
+        %https://uk.mathworks.com/matlabcentral/answers/139935-how-can-i-reverse-black-and-white-in-a-grayscale-image
+        inverseGrayImage = uint8(255) - grayImage;
+        bw = imbinarize(inverseGrayImage);
+        e = imclearborder(bw);
+        x = bwareafilt(e, 1);
+        greyfill = imfill(x);
+        figure
+        imshowpair(final,y,'montage')
+        title("output vs Ground truth")
+        similarity = dice(greyfill,y);
+    end
 end

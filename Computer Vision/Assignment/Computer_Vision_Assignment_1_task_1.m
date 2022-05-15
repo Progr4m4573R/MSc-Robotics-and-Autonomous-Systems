@@ -29,8 +29,7 @@ for k = 1:length(GTjpegFiles)
   %drawnow; % Force display to update immediately.
 end
 
-
-similarity = compute_dice_score(jpegFiles(1),GTjpegFiles(1));
+similarity = compute_dice_score(jpegFiles(3),GTjpegFiles(3));
 % len = length(jpegFiles);
 % similarity_array=zeros();
 % for i = 1: len
