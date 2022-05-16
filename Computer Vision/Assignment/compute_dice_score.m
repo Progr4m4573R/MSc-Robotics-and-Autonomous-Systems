@@ -5,9 +5,9 @@ function similarity = compute_dice_score(x,y)
 
     im  = imread(x.name);
     gti = imread(y.name);
-    figure
-    imshow(im);
-    title("Baseline image")
+%     figure
+%     imshow(im);
+%     title("Baseline image")
     %Step 2
     %-----------------------enhancing--------------
     %Testing has shown that enhancing images is unfortunately not good for
@@ -20,9 +20,9 @@ function similarity = compute_dice_score(x,y)
     numColors = 3;
     L = imsegkmeans(im,numColors);
     B = labeloverlay(im,L);
-    figure
-    imshowpair(im,enhanced,'montage')
-    title('Baseline left, enhanced right')
+%     figure
+%     imshowpair(im,enhanced,'montage')
+%     title('Baseline left, enhanced right')
     %------------------------enhancing--------------
     % figure
     % imshow(B)
@@ -92,6 +92,8 @@ function similarity = compute_dice_score(x,y)
     %figure
 
     result = edge(BW,'log');
+    %------drawing boundary around detected section-------
+    %%uncomment to try
 %     dim = size(BW);
 %     col = round(dim(2)/2)-90;
 %     row = min(find(result(:,col)));
@@ -100,35 +102,56 @@ function similarity = compute_dice_score(x,y)
     
 %     hold on;
 %     plot(boundary(:,2),boundary(:,1),'g','LineWidth',3);
-    %https://uk.mathworks.com/help/images/ref/imclearborder.html
+   % %https://uk.mathworks.com/help/images/ref/imclearborder.html
     e = imclearborder(result);
     %https://uk.mathworks.com/matlabcentral/answers/254289-how-to-remove-unwanted-small-blob
     temp = bwareafilt(e, 1);
     final = imfill(temp,'holes');
     title('edge detection')
-    %----------------draw line around wanted section----------------
+    %----------------------------------------------------------
+    %draw line around wanted section
     %binarize the ground truth to compare
     y = imbinarize(gti);
     %https://uk.mathworks.com/help/images/ref/dice.html
-    similarity = dice(final,y);
-    if similarity > 0.60
-        figure
-        imshowpair(final,y,'montage')
-        title("output vs Ground truth")
-        similarity;
+    similarity_func = dice(final,y);
+
+    %figure
+    %imshowpair(final,y,'montage')
+    %title("output vs Ground truth")
+    %---------------------------------------------
+    %--------------------Alternative image processing----------------------
+    grayImage = rgb2gray(enhanced);
+    %https://uk.mathworks.com/matlabcentral/answers/139935-how-can-i-reverse-black-and-white-in-a-grayscale-image
+    %inverse = imcomplement(grayImage);
+    inverseGrayImage = uint8(255) - grayImage;
+    bw = imbinarize(inverseGrayImage);
+    d = imclearborder(bw);
+    alt_result = bwareafilt(d, 1);
+    greyfill = imfill(alt_result,'holes');
+    %figure
+    %imshowpair(final,y,'montage')
+    %title("output vs Ground truth")
+    similarity_no_func = dice(greyfill,y);
+    %-----------------------------------
+    temp = string(x.name);
+    if similarity_func > similarity_no_func
+        best_image = final;
     else
-        im = imread(x.name);
-        enhanced = imadjust(im,stretchlim(im));
-        grayImage = rgb2gray(enhanced);
-        %https://uk.mathworks.com/matlabcentral/answers/139935-how-can-i-reverse-black-and-white-in-a-grayscale-image
-        inverseGrayImage = uint8(255) - grayImage;
-        bw = imbinarize(inverseGrayImage);
-        e = imclearborder(bw);
-        x = bwareafilt(e, 1);
-        greyfill = imfill(x);
-        figure
-        imshowpair(final,y,'montage')
-        title("output vs Ground truth")
-        similarity = dice(greyfill,y);
+        best_image = greyfill;
     end
+        
+%     if strcmp(temp,'ISIC_0000019.jpg')
+%         imwrite(best_image,'ISIC_19_segmented.jpg')
+
+%     if strcmp(temp,'ISIC_0000095.jpg')
+%         imwrite(best_image,'ISIC_95_segmented.jpg')
+
+    if strcmp(temp,'ISIC_0000214.jpg')
+        imwrite(best_image,'ISIC_214_segmented.jpg')
+    
+    %end
+    %end
+    end
+    %----------------------------------------
+    similarity = max(similarity_func,similarity_no_func);
 end

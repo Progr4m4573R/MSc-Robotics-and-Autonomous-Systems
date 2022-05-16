@@ -6,6 +6,7 @@
 function[]=Fourier_Analysis(img)
 %Prepare image
 %-----------------------------------------------
+%convert image in spatial domain to grey
 grey = rgb2gray(img);
 f = grey;
 %------------------------------------------------
@@ -13,7 +14,7 @@ f = grey;
 rotatedF = imrotate(f,90);
 %create the fourier transform of the image at 90 degrees
 %----------------------------------------------
-%return the two-dimensional Fourier transform of rotated image 
+%return the two-dimensional Fourier transform of rotated image in spatial domain 
 F = fft2(rotatedF,256,256);
 figure;
 imshow(F);

@@ -28,12 +28,29 @@ for k = 1:length(GTjpegFiles)
   %imshow(imageArray);  % Display image.
   %drawnow; % Force display to update immediately.
 end
-
+%check similarity of specific images
+%-------------------------
 %similarity = compute_dice_score(jpegFiles(3),GTjpegFiles(3));
+%------------------------
+
+%get similariity of all images
+%----------------------------------
 len = length(jpegFiles);
-similarity_array=zeros();
+similarity_array=double.empty();
 for i = 1: len
     similarity = compute_dice_score(jpegFiles(i),GTjpegFiles(i));
     similarity_array = [similarity_array, similarity];
 end
+%-----------------------------------------
+%mean and standard deviation of dice score
+standard_deviation = std(similarity_array);
 mean_score = mean(similarity_array);
+%bar graph of dice score and number of image
+%-----------------------------------
+x = 1:1:60;
+image_number = categorical(x);
+dice_score = similarity_array;
+bar(image_number,dice_score)
+xlabel('Image number')
+ylabel('Dice score')
+
