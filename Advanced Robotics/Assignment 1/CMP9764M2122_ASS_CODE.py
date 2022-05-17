@@ -18,11 +18,14 @@
 #  3. IRLAgent: a basic IRL agent, to be extended/modified
 #
 import matplotlib.pyplot as plt
-
+import pandas as pd
 from sre_constants import REPEAT
 from statistics import mean
 import numpy as np
 from scipy import stats
+
+np.random.seed(10)
+
 # global variables
 LOGGING = True         #set full logging to terminal or not...
 EXPLORE = 0.3          #the explore proportion: (1-EXPLORE) for exloit
@@ -190,18 +193,12 @@ class QAgent:
         Q_mean = np.mean(self.numStates)
         Q_max = np.max(self.numStates)
         Q_min = np.min(self.numStates)
+        Q_median = np.median(self.numStates)
         Q_mode = stats.mode(self.numStates)
-        print ("Q_mean: ", Q_mean,"\nQ_max: ", Q_max,"\nQ_min: ", Q_min,"\nQ_mode: ",Q_mode[0], "with",Q_mode[1],"occurences")
+        Q_Standard_Deviation = np.std(self.numStates)
+        print ("Q_mean: ", Q_mean,"\nQ_max: ", Q_max,"\nQ_min: ", Q_min,"\nQ_mode: ",Q_mode[0], "with",Q_mode[1],"\noccurences", "\nMedian:", Q_median,"\nStandard deviation:", Q_Standard_Deviation)
         print("")
-
-        #------------------plot QAgent results as bar chart------------------------
-        #https://www.tutorialspoint.com/matplotlib/matplotlib_bar_plot.htm
-        fig = plt.figure()
-        ax = fig.add_axes([0,0,1,1])
-        QAgent_statistics = ['QAgent_mean', 'QAgent_max', 'QAgent_min', 'QAgent_mode', 'Occurence']
-        QAgent_statistics_values = [Q_mean, Q_max, Q_min, Q_mode[0],Q_mode[1]]
-        ax.bar(QAgent_statistics,QAgent_statistics_values)
-        plt.show()
+        
         #------------plot QAgent states across runs as line graph-----------------
         #https://www.geeksforgeeks.org/plot-line-graph-from-numpy-array/
 
@@ -209,11 +206,29 @@ class QAgent:
         print(type(output))
         y = self.numStates
         x = np.arange(0,len(self.numStates))
-        plt.title("Line graph")
+        plt.title("Line graph of Q-Learning Agent")
         plt.xlabel("number of runs")
         plt.ylabel("number of states taken per run")
         plt.plot(x, y, color ="red")
         plt.show()
+        #------------------plot QAgent HISTOGRAM------------------------
+        #https://www.w3schools.com/python/matplotlib_histograms.asp
+        num_of_iterations = 40
+        ret = np.random.normal(Q_mean, Q_Standard_Deviation, num_of_iterations)
+        plt.hist(ret)
+        plt.xlabel('run times')
+        plt.ylabel('Number of actions taken to get to goal')
+        plt.title('Plot of Q-Learnig Agent')
+        plt.show()
+        #------------Box plot QAgent Summary across runs -----------------
+        QAgent_statistics_values = [Q_max, Q_min, Q_median]
+        fig = plt.figure(figsize =(10, 7))
+        plt.boxplot(QAgent_statistics_values)
+        # show plot
+        plt.title('Summary plot of Q-Learning Agent states')
+        plt.show()
+
+
 
 ##########################################################################################################################################################################################
 # Interactive RL agent
@@ -337,8 +352,7 @@ class IRLAgent:
 
 
                     self.state_values[current_state] = round(reward, 3)
-
-                
+               
     def showValues(self):
         for i in range(0, BOARD_ROWS):
             print ("-------------------------------------")
@@ -352,28 +366,39 @@ class IRLAgent:
         IRL_mean = np.mean(self.numStates)
         IRL_max = np.max(self.numStates)
         IRL_min = np.min(self.numStates)
+        IRL_median = np.median(self.numStates)
         IRL_mode = stats.mode(self.numStates)
-        print ("IRL_mean: ", IRL_mean,"\nIRL_max: ", IRL_max,"\nIRL_min: ", IRL_min,"\nIRL_mode: ",IRL_mode[0], "with",IRL_mode[1],"occurences")
+        IRL_standard_deviation = np.mean(self.numStates)
+        print ("IRL_mean: ", IRL_mean,"\nIRL_max: ", IRL_max,"\nIRL_min: ", IRL_min,"\nIRL_mode: ",IRL_mode[0], "with",IRL_mode[1],"occurences","\nMedian:", IRL_median, "\nStandard deviation:", IRL_standard_deviation)
         print ("")
 
-        #------------------plot IRL results as bar chart------------------------
-        #https://www.tutorialspoint.com/matplotlib/matplotlib_bar_plot.htm
-        fig = plt.figure()
-        ax = fig.add_axes([0,0,1,1])
-        IRL_statistics = ['IRL_mean', 'IRL_max', 'IRL_min', 'IRL_mode', 'Occurence']
-        IRL_statistics_values = [IRL_mean, IRL_max, IRL_min, IRL_mode,IRL_mode[1]]
-        ax.bar(IRL_statistics,IRL_statistics_values)
-        plt.show()
         #------------plot IRL states across runs as line graph-----------------
         #https://www.geeksforgeeks.org/plot-line-graph-from-numpy-array/
         np.array(self.numStates)
         y = self.numStates
         x = np.arange(0,len(self.numStates))
-        plt.title("Line graph")
+        plt.title("Line graph of IRL Agent")
         plt.xlabel("number of runs")
-        plt.ylabel("number of states taken per run")
+        plt.ylabel("number of states taken to get to goal")
         plt.plot(x, y, color ="red")
         plt.show()
+        #------------------plot IRL HISTOGRAM------------------------
+        #https://www.w3schools.com/python/matplotlib_histograms.asp
+        num_of_iterations = 40
+        ret = np.random.normal(IRL_mean, IRL_standard_deviation, num_of_iterations)
+        plt.hist(ret)
+        plt.xlabel('run times')
+        plt.ylabel('Number of actions taken to get to goal')
+        plt.title('Histogram plot of IRL Agent')
+        plt.show()
+        #------------Box plot QAgent Summary across runs -----------------
+        IRL_statistics_values = [IRL_max, IRL_min, IRL_median]
+        fig = plt.figure(figsize =(10, 7))
+        plt.boxplot(IRL_statistics_values)
+        # show plot
+        plt.title('Summary plot of IRL Agent states')
+        plt.show()
+
 
 ##########################################################
 # Main
@@ -382,15 +407,15 @@ if __name__ == "__main__":
     ag = QAgent()
     ag.play(40)
 
-    # irl = IRLAgent()
-    # irl.play(40)            # <--- Uncomment this to enable the IRLAgent
+    irl = IRLAgent()
+    irl.play(40)            # <--- Uncomment this to enable the IRLAgent
 
     print ("_________________________________________________")
-    print ("")
-    print ("Q-learning agent:")
-    print(ag.showValues())
+    # print ("")
+    # print ("Q-learning agent:")
+    # print(ag.showValues())
     
-    # print ("")
-    # print ("IRL agent:")
-    # print(irl.showValues())
-    # print ("")
+    print ("")
+    print ("IRL agent:")
+    print(irl.showValues())
+    print ("")
