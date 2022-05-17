@@ -19,6 +19,7 @@
 #
 
 
+from sre_constants import REPEAT
 from statistics import mean
 import numpy as np
 from scipy import stats
@@ -193,9 +194,9 @@ class QAgent:
         print ("Q_mean: ", Q_mean,"\nQ_max: ", Q_max,"\nQ_min: ", Q_min,"\nQ_mode: ",Q_mode[0], "with",Q_mode[1],"occurences")
         print("")
 
-##########################################################
+##########################################################################################################################################################################################
 # Interactive RL agent
-##########################################################
+###########################################################################################################################################################################################
 class IRLAgent:
 
     def __init__(self):
@@ -205,7 +206,7 @@ class IRLAgent:
         self.State = State()
         self.lr = 0.2
         self.exp_rate = EXPLORE
-
+        self.bad_Actions = []
         # initial state reward
         self.state_values = {}
         for i in range(BOARD_ROWS):
@@ -242,7 +243,7 @@ class IRLAgent:
         print ("IRL START")
         print ("")
         stepCounter = 0
-        while i < rounds:
+        while i < rounds :
             # to the end of game back propagate reward
             if self.State.isEnd:
                 # back propagate
@@ -263,31 +264,60 @@ class IRLAgent:
                 stepCounter += 1
                 self.State.showBoard()
                 action = self.chooseAction()
-                # append trace
-                self.states.append(self.State.nxtPosition(action))
-                current_state = self.State.state    #current state before action is executed
-                if (LOGGING):
-                    print("  current position {} action {}".format(self.State.state, action))
-                # by taking the action, it reaches the next state
-                self.State = self.takeAction(action)
-                # mark is end
-                self.State.isEndFunc()
-                if (LOGGING):
-                    print ("    |--> next state", self.State.state)
-                # for IRL allow user to define reward:
-                #  - get reward from user:
-                feedback = input("      *was* this g(ood) or b(ad): ")
-                u_reward = 0
-                if feedback == "g":
-                    u_reward = MANUAL_FEEDBACK
-                elif feedback == "b":
-                    u_reward = -MANUAL_FEEDBACK
-                else:
-                    #not recognised, assume ok...
-                    u_reward = NEUTRAL_FEEDBACK
-                #  - update the value of the current state only
-                reward = self.state_values[current_state] + self.lr * (u_reward - self.state_values[current_state])
-                self.state_values[current_state] = round(reward, 3)
+                if action not  in self.bad_Actions:
+                    action = action
+                    self.bad_Actions.clear()
+                    # # append trace
+                    # self.states.append(self.State.nxtPosition(action))
+                    current_state = self.State.state    #current state before action is executed
+                    if (LOGGING):
+                        print("  current position {} action {}".format(self.State.state, action))
+                    # by taking the action, it reaches the next state
+                    #self.State = self.takeAction(action)
+                    # mark is end
+                    self.State.isEndFunc()
+                    if (LOGGING):
+                        print ("    |--> next state", self.State.state)
+                    # for IRL allow user to define reward:
+                    #  - get reward from user:
+                    feedback = input("      *was* this g(ood) or b(ad): ")
+                    u_reward = 0
+                    if feedback == "g":
+                        u_reward = MANUAL_FEEDBACK
+                        #reward the state and then repeat the action if the action lead to that state
+
+                        # append trace
+                        self.states.append(self.State.nxtPosition(action))
+                        current_state = self.State.state    #current state before action is executed
+                        if (LOGGING):
+                            print("  current position {} action {}".format(self.State.state, action))
+                        # by taking the action, it reaches the next state
+                        self.State = self.takeAction(action)
+                        # mark is end
+                        self.State.isEndFunc()
+                        if (LOGGING):
+                            print ("    |--> next state", self.State.state)
+
+                    elif feedback == "b":
+                        u_reward = -MANUAL_FEEDBACK
+                        # if the suggested action is the same as previous state then stay
+                        self.State.state == current_state     #current state before action is executed
+                        self.bad_Actions.append(action)
+                        if (LOGGING):
+                            print("  current position {} action {}".format(self.State.state, action))
+                        self.State.isEndFunc()
+                        if (LOGGING):
+                            print ("    |--> bad action, staying put", self.State.state)
+                    else:
+                        #not recognised, assume ok...
+                        u_reward = NEUTRAL_FEEDBACK
+                    #  - update the value of the current state only but should reward the action given the state
+                    reward = self.state_values[current_state] + self.lr * (u_reward - self.state_values[current_state])
+
+
+                    self.state_values[current_state] = round(reward, 3)
+
+                
 
     def showValues(self):
         for i in range(0, BOARD_ROWS):
@@ -299,11 +329,11 @@ class IRLAgent:
         print ("-------------------------------------")
         print (self.numStates)
         #UNCOMMENT for summary statistics
-        #IRL_mean = np.mean(self.numStates)
-        #IRL_max = np.max(self.numStates)
-        #IRL_min = np.min(self.numStates)
-        #IRL_mode = stats.mode(self.numStates)
-        #print ("Q_mean: ", IRL_mean,"\nQ_max: ", IRL_max,"\nQ_min: ", IRL_min,"\nQ_mode: ",IRL_mode[0], "with",IRL_mode[1],"occurences")
+        IRL_mean = np.mean(self.numStates)
+        IRL_max = np.max(self.numStates)
+        IRL_min = np.min(self.numStates)
+        IRL_mode = stats.mode(self.numStates)
+        print ("IRL_mean: ", IRL_mean,"\nIRL_max: ", IRL_max,"\nIRL_min: ", IRL_min,"\nIRL_mode: ",IRL_mode[0], "with",IRL_mode[1],"occurences")
         print ("")
 
 
@@ -311,16 +341,17 @@ class IRLAgent:
 # Main
 ##########################################################
 if __name__ == "__main__":
-    ag = QAgent()
-    ag.play(40)
+    #ag = QAgent()
+    #ag.play(40)
 
     irl = IRLAgent()
-    #irl.play(3)            # <--- Uncomment this to enable the IRLAgent
+    irl.play(3)            # <--- Uncomment this to enable the IRLAgent
 
-    print ("_________________________________________________")
-    print ("")
-    print ("Q-learning agent:")
-    print(ag.showValues())
+    # print ("_________________________________________________")
+    # print ("")
+    # print ("Q-learning agent:")
+    # print(ag.showValues())
+    
     print ("")
     print ("IRL agent:")
     print(irl.showValues())
