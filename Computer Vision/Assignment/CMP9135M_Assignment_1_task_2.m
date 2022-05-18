@@ -3,7 +3,7 @@ clear; close all; clc
 
 %https://uk.mathworks.com/help/images/create-image-histogram.html
 imgpia = imread('ImgPIA.jpg');
-%Fourier_Analysis(imgpia)
+Fourier_Analysis(imgpia)
 
 %-------------Task 2 Part 2 %co-currence matrix----------------------
 
