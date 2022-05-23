@@ -12,7 +12,7 @@ A sample of Projects done in each language (Pre MSc)
 
 Java 
 
-During my Extended Diploma in IT I created GUI calculate for calculating the paint cost for a room with x,y,z dimensions.I split my code into multiple procedures because the amount of code required for each section would be too much to all run in one go. It could cause mistakes in the code and there would simply just be too much code to run through. I used methods and split my code into different classes. A method for each of the paints, the calculations and the undercoat. I then call the methods independently depending on the options the user choses based on a class of switch statements.
+During my Extended Diploma in IT at North Kent College I created GUI calculate for calculating the paint cost for a room with x,y,z dimensions. I split my code into multiple procedures because the amount of code required for each section would be too much to all run in one go. It could cause mistakes in the code and there would simply just be too much code to run through. I used methods and split my code into different classes. A method for each of the paints, the calculations and the undercoat. I then call the methods independently depending on the options the user choses based on a class of switch statements.
 
 C#
 
