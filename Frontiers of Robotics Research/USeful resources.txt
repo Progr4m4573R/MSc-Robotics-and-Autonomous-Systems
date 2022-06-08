@@ -19,3 +19,5 @@ Photo sharing app Django
 https://www.sitepoint.com/django-photo-sharing-app/
 
 updated stuff
+
+DJI tello capable of being used with raspberry pi - https://www.amazon.co.uk/Ryze-Tello-Drone-Powered-DJI/dp/B078XV32CJ/ref=asc_df_B078XV32CJ/?tag=googshopuk-21&linkCode=df0&hvadid=310066351121&hvpos=&hvnetw=g&hvrand=4334658594678762011&hvpone=&hvptwo=&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=1006876&hvtargid=pla-426928592286&th=1
