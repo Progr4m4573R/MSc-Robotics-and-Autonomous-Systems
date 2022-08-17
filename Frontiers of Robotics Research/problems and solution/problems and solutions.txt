@@ -1,0 +1,34 @@
+If you are unable to access the camera and the frames are read as none, this could be a permissions issue which can be solved by adding the user to the videos group:
+
+https://stackoverflow.com/questions/59371075/opencv-error-cant-open-camera-through-video-capture
+
+USing Camorama to test droidcam installed on my phone and linux machine as cheese wont work for me.
+
+To install droidcam i had to sign for it with a public and private key https://ubuntu.com/blog/how-to-sign-things-for-secure-boot
+
+TO RUN CODE ON the raspberry pi i had to add the installed libraries to path:
+https://forums.raspberrypi.com/viewtopic.php?t=287068
+
+to be able to communicate between devices over the internet i needed to know my ip address:
+https://opensource.com/article/18/5/how-find-ip-address-linux
+
+to add modules to my PATH on raspberry pi i used:
+
+pythhttps://forums.raspberrypi.com/viewtopic.php?t=287068
+
+to find my ipaddress for file sharing:
+https://opensource.com/article/18/5/how-find-ip-address-linux
+
+if raspberry pi python client isn't working remember to use pip3 and not pip to install tqdm
+
+ran into an issue when trying ti run labelIMg for the first time picture in folder:
+solution: https://github.com/wkentaro/labelme/issues/842
+
+If you get an error to do with function detectMultiScale being empty then try:
+https://stackoverflow.com/questions/30508922/error-215-empty-in-function-detectmultiscale
+
+If you get a cv2.CascadeClassifier returned a result with an error set:
+https://stackoverflow.com/questions/54273050/opencv-4-0-0-systemerror-class-cv2-cascadeclassifier-returned-a-result-with
+
+How to kill persisting pythin scripts:
+https://superuser.com/questions/446808/how-to-manually-stop-a-python-script-that-runs-continuously-on-linux

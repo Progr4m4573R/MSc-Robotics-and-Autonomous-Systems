@@ -27,4 +27,17 @@ https://ubuntu.pkgs.org/18.04/ubuntu-updates-multiverse-arm64/virtualbox-ext-pac
 installing raspberry pi on virtual box and how to run it
 https://pimylifeup.com/raspberry-pi-virtualbox/
 
+installing MavProxy to recieve UDP from tello drone in mission planner:
+https://ardupilot.org/mavproxy/docs/getting_started/download_and_installation.html
 
+how to recieve tello telemetry in misison planner:https://www.google.com/search?channel=fs&client=ubuntu&q=can+mission+planner+recieve+udp
+
+Tello script for brodcasting telemetry: https://github.com/m6c7l/dji-ryze-tello/tree/master/examples/telemetry
+
+Installing Mono for running Ardu pilot's MIssion Planner:
+https://ardupilot.org/planner/docs/mission-planner-installation.html
+Connecting drone to Mission planner:
+https://ardupilot.org/planner/docs/common-loading-firmware-onto-pixhawk.html
+
+install djitellopy library to make it easier for making the drone autonomous:
+https://pypi.org/project/djitellopy/
