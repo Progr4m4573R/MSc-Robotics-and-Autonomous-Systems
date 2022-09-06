@@ -18,8 +18,12 @@ Photo sharing app Django
 https://www.sitepoint.com/django-photo-sharing-app/
 
 updated stuff
-website explaining installing yolo:
-https://github.com/sthanhng/yoloface
 
-installing yoloface and testing it with face detection:
 https://pypi.org/project/yoloface/
+
+Facial landmarks with DLib, python and OpenCV
+https://pyimagesearch.com/2017/04/03/facial-landmarks-dlib-opencv-python
+
+
+Facial Detection and Recognition with Dlib
+https://www.width.ai/post/facial-detection-and-recognition-with-dlib
