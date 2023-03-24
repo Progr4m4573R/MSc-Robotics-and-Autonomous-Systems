@@ -9,7 +9,7 @@ Research Project -
 
 1.Designing the infrastructure for an autonomous surveillance drone with facial recognition. This involved using machine learning principles alongside computer vision to train three different machine learning models to be able to recognise faces and follow a recognised person.
 
-Researcch Methods -
+Research Methods -
 
 1.Applied statistical inferencing tools onto some data to show a relationship between chosen data and the draw inference on the larger public which the data represented - this used a face recognition dataset and python libraries such as deepface to automtically detect and classify the ethnicities of the individuals in a dataset based on their picture with an accuracy of 99.3% when used on the Labelled Faces in the wild dataset.
 
