@@ -1,12 +1,46 @@
 # MSc-Robotics-and-Autonomous-Systems
 4th Year at the University of Lincoln.
 
-Advanced Artificial Intelligence - Focuses on the theoretical fundamentals and practical applications of decision making, problem solving and interference ablilities in software agents. This module is python baised and available sources include google colab as well as jupiter notebook
+Computer Vision - 
 
-Robot Programming - Focuses on programming robots in ROS
+1.Created an algorithm, using MATLAB, for automatically detecting and segmenting skin lesions; created an algorithm to detect and calculate Image features, create an algorithm to implement a Kalman filter and tracks an objects trajectory in Cartesian coordinates, from a noisy input (coordinates containing incorrect data).
+
+Research Project - 
+
+1.Designing the infrastructure for an autonomous surveillance drone with facial recognition. This involved using machine learning principles alongside computer vision to train three different machine learning models to be able to recognise faces and follow a recognised person.
+
+Researcch Methods -
+
+1.Applied statistical inferencing tools onto some data to show a relationship between chosen data and the draw inference on the larger public which the data represented - this used a face recognition dataset and python libraries such as deepface to automtically detect and classify the ethnicities of the individuals in a dataset based on their picture with an accuracy of 99.3% when used on the Labelled Faces in the wild dataset.
+
+Frontiers of Robotics Research - 
+
+1.Wrote a literature review for the research project on Designing the Infrastructure for an Autonomous Surveillance Drone capable of locating and navigating to a target via Facial Recognition. Said robot is also capable of receiving new targets while active.
+
+Advanced Robotics - 
+
+1.Implemented a grid world simulation to demonstrate the effect of two human-guided learning methods. Methods chosen were Q-learning driven agent and IRL based agent.
+
+Advanced Machine Learning - 
+
+1.Trained multiple AI agents (using chosen Deep learning Machine Learning Models and policies in python, PPO and DQN) to play Super Mario bros. Program an Image classifier to detect Pneumonia in medical images with Tensorflow.
+
+Advanced Artificial Intelligence - 
+
+1.Focuses on the theoretical fundamentals and practical applications of decision making, problem solving and interference ablilities in software agents. This module is python baised and available sources include google colab as well as jupiter notebook
+
+2.In Python created an AI character in a pacman inspired game and make them survive as long as possible using an MDP approach.
+
+Robot Programming -
+
+1.Used Python and ROS techniques to program a Thorvald Robot to autonomously count the berries growing in a wide range of mazes.
+
+2.Focuses on programming robots in ROS
 instructions found on : https://github.com/LCAS/CMP9767M/wiki
 
-Foundations of robotics - Delves into the maths, physics and all other facets of robotics that all come together to make robitics possible. For this module i created a robot with a team of other masters students. The specifics of this will be elaborated in another repository
+Foundations of robotics - 
+
+1.Delves into the maths, physics and all other facets of robotics that all come together to make robitics possible. For this module i created a robot with a team of other masters students. The specifics of this will be elaborated in another repository
 
 A sample of Projects done in each language (Pre MSc)
 
